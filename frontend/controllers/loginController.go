@@ -22,7 +22,7 @@ func SubmitLogin(c *fiber.Ctx) error {
 
 	username := userLogin.Username
 	password := userLogin.Password
-	user := models.ValidateUser(username, password)
+	user := models.LoginUser(username, password)
 
 	if user == nil {
 		return c.Render("login", fiber.Map{

@@ -1,16 +1,16 @@
 package models
 
-type User struct {
-	Username string
-	Password string
-}
+import (
+	"todo-frontend-web-app/apis"
+	"todo-frontend-web-app/models/responses"
+)
 
-func ValidateUser(username, password string) *User {
-	if username == "emre" && password == "1234" {
-		return &User{
-			Username: username,
-			Password: password,
-		}
+func LoginUser(username string, password string) *responses.UserLoginResponse {
+	client := apis.ClientInstance()
+	response := client.Login(username, password)
+	if response == nil {
+		return nil
 	}
-	return nil
+
+	return response
 }
