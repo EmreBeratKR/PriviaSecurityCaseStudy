@@ -1,7 +1,7 @@
 package main
 
 import (
-	"todo-frontend-web-app/controllers"
+	"todo-frontend-web-app/initializers"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
@@ -14,9 +14,8 @@ func main() {
 		Views: engine,
 	})
 
-	app.Get("/", controllers.Hello)
-	app.Get("/login", controllers.Login)
-	app.Post("/login", controllers.SubmitLogin)
+	initializers.InitRoutes(app)
+	initializers.InitMiddlewares(app)
 
 	app.Listen(":3000")
 }
