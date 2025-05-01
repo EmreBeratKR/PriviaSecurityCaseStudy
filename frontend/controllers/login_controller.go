@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"todo-frontend-web-app/common"
 	"todo-frontend-web-app/models"
 	"todo-frontend-web-app/services"
 
@@ -22,7 +23,7 @@ func (controller *LoginController) LoginControllerPost(context *fiber.Ctx) error
 		return context.Status(fiber.StatusBadRequest).Render("bad_request", fiber.Map{})
 	}
 
-	response := controller.login(loginRequest)
+	response := controller.sendLoginRequest(loginRequest)
 
 	if !response.IsSuccess() {
 		return context.Render("login", fiber.Map{
@@ -30,7 +31,9 @@ func (controller *LoginController) LoginControllerPost(context *fiber.Ctx) error
 		})
 	}
 
-	return context.SendString("Welcome!")
+	common.Login(context, response)
+
+	return context.Redirect("/")
 }
 
 func (controller *LoginController) tryParseLoginRequest(context *fiber.Ctx) (*models.LoginRequestModel, bool) {
@@ -43,6 +46,6 @@ func (controller *LoginController) tryParseLoginRequest(context *fiber.Ctx) (*mo
 	return &loginRequest, true
 }
 
-func (controller *LoginController) login(request *models.LoginRequestModel) *models.LoginResponseModel {
+func (controller *LoginController) sendLoginRequest(request *models.LoginRequestModel) *models.LoginResponseModel {
 	return controller.ServiceManager.UserService.Login(request)
 }

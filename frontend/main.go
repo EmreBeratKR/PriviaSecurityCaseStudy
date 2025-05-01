@@ -1,12 +1,17 @@
 package main
 
 import (
+	"os"
 	"todo-frontend-web-app/initializers"
 	"todo-frontend-web-app/services"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
 )
+
+func init() {
+	initializers.InitDotEnv()
+}
 
 func main() {
 	serviceManager := services.MockServiceManager()
@@ -15,8 +20,10 @@ func main() {
 		Views: engine,
 	})
 
+	initializers.PreUseMiddlewares(app)
 	initializers.InitRoutes(app, serviceManager)
-	initializers.InitMiddlewares(app)
+	initializers.PostUseMiddlewares(app)
 
-	app.Listen(":3000")
+	port := os.Getenv("PORT")
+	app.Listen(":" + port)
 }
