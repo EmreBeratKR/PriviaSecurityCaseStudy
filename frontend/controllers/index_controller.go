@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"todo-frontend-web-app/common"
+	"todo-frontend-web-app/models"
 	"todo-frontend-web-app/services"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,5 +13,30 @@ type IndexController struct {
 }
 
 func (controller *IndexController) IndexControllerGet(context *fiber.Ctx) error {
-	return context.SendString("hello from index")
+	todoLists := controller.getAllTodoListsForAuthenticatedUser(context)
+
+	if todoLists == nil {
+		return common.SendStatusInternalServerError(context)
+	}
+
+	return context.Render("index", fiber.Map{
+		"Username":  common.GetAuthUsername(context),
+		"TodoLists": todoLists,
+	})
+}
+
+func (controller *IndexController) getAllTodoListsForAuthenticatedUser(context *fiber.Ctx) []models.TodoListModel {
+	userId := common.GetAuthUserId(context)
+
+	if userId == "" {
+		return nil
+	}
+
+	response := controller.ServiceManager.TodoListService.GetAllByUserId(userId)
+
+	if !response.IsSuccess() {
+		return nil
+	}
+
+	return response.TodoLists
 }

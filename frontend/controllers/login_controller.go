@@ -20,7 +20,7 @@ func (controller *LoginController) LoginControllerPost(context *fiber.Ctx) error
 	loginRequest, parseSuccess := controller.tryParseLoginRequest(context)
 
 	if !parseSuccess {
-		return context.Status(fiber.StatusBadRequest).Render("bad_request", fiber.Map{})
+		return common.SendStatusBadRequest(context)
 	}
 
 	response := controller.sendLoginRequest(loginRequest)
@@ -33,7 +33,7 @@ func (controller *LoginController) LoginControllerPost(context *fiber.Ctx) error
 
 	common.Login(context, response)
 
-	return context.Redirect("/")
+	return common.RedirectToHomePage(context)
 }
 
 func (controller *LoginController) tryParseLoginRequest(context *fiber.Ctx) (*models.LoginRequestModel, bool) {

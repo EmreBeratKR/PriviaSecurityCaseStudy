@@ -23,6 +23,24 @@ func IsAuthenticated(context *fiber.Ctx) bool {
 	return getUserClaims(context) != nil
 }
 
+func GetAuthUserId(context *fiber.Ctx) string {
+	claims := getUserClaims(context)
+	if claims == nil {
+		return ""
+	}
+
+	return claims.Subject
+}
+
+func GetAuthUsername(context *fiber.Ctx) string {
+	claims := getUserClaims(context)
+	if claims == nil {
+		return ""
+	}
+
+	return claims.Username
+}
+
 func getAuthCookieName() string {
 	return "auth_token"
 }

@@ -5,11 +5,19 @@ import (
 )
 
 type ServiceManager struct {
-	UserService interfaces.UserService
+	UserService     interfaces.UserService
+	TodoListService interfaces.TodoListService
+	TodoTaskService interfaces.TodoTaskService
 }
 
 func MockServiceManager() *ServiceManager {
+	todoListService := &MockTodoListService{}
+	todoListService.Init()
+	todoTaskService := &MockTodoTaskService{}
+	todoTaskService.Init()
 	return &ServiceManager{
-		UserService: &MockUserService{},
+		UserService:     &MockUserService{},
+		TodoListService: todoListService,
+		TodoTaskService: todoTaskService,
 	}
 }

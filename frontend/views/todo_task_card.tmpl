@@ -1,0 +1,17 @@
+<div class="task-card">
+    <div class="task-left">
+      <div class="toggle {{if .IsCompleted}}checked{{end}}">
+        {{if .IsCompleted}}✓{{end}}
+      </div>
+      <div class="task-desc">{{.Content}}</div>
+    </div>
+    <div class="task-actions">
+      <div class="action-btn edit-btn">
+        <img src="/icons/edit.svg" alt="Edit" width="16" height="16">
+      </div>
+      <div class="action-btn delete-btn">
+        <img src="/icons/trash.svg" alt="Delete" width="16" height="16">
+      </div>
+    </div>
+</div>
+  

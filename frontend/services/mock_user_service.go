@@ -12,15 +12,15 @@ type MockUserService struct{}
 
 func (service *MockUserService) Login(request *models.LoginRequestModel) *models.LoginResponseModel {
 	if request.Username == "Emre" && request.Password == "1234" {
+		userId := "1234567890"
 		expireAt := calculateJWTExpireTime()
 		return &models.LoginResponseModel{
 			Status:  "success",
 			Message: "Welcome back, Emre",
 			Token: createJWT(expireAt, models.UserClaims{
-				Subject:  "1234567890",
 				Username: request.Username,
 				Role:     "user",
-			}),
+			}, userId),
 			ExpiresAt: expireAt,
 		}
 	}
@@ -39,9 +39,10 @@ func getJWTSecret() []byte {
 	return []byte(os.Getenv("JWT_SECRET"))
 }
 
-func createJWT(expireAt time.Time, claims models.UserClaims) string {
+func createJWT(expireAt time.Time, claims models.UserClaims, subject string) string {
 	secret := getJWTSecret()
 	claims.RegisteredClaims = jwt.RegisteredClaims{
+		Subject:   subject,
 		Issuer:    "Mock User Service",
 		ExpiresAt: jwt.NewNumericDate(expireAt),
 	}

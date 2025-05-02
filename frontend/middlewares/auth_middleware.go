@@ -12,7 +12,7 @@ func AuthMiddleware(context *fiber.Ctx) error {
 
 	if isAuthenticated {
 		if isLoginPage {
-			return context.Redirect("/")
+			return common.RedirectToHomePage(context)
 		}
 
 		return context.Next()
@@ -22,5 +22,5 @@ func AuthMiddleware(context *fiber.Ctx) error {
 		return context.Next()
 	}
 
-	return context.Redirect("/login")
+	return common.RedirectToLoginPage(context)
 }

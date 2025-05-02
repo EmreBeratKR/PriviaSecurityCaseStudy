@@ -1,0 +1,19 @@
+<a class="todo-list-card" href="todo-list?id={{.Id}}">
+    <div class="list-name">{{.Name}}</div>
+    <div class="last-modified">Last Modified: {{.GetModifiedAtFormatted}}</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar-header">
+        <span>Progress</span>
+        <span>{{.CompletionPercent}}%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress" style="width: {{.CompletionPercent}}%;"></div>
+      </div>
+      <div class="task-summary">{{.CompletedTasks}} of {{.TotalTasks}} tasks completed</div>
+    </div>
+    <div class="todo-card-footer">
+      {{.GetRemainingTasks}} tasks remaining
+    </div>
+    <div class="open-hint">OPEN</div>
+  </a>
+  

@@ -20,6 +20,8 @@ func main() {
 		Views: engine,
 	})
 
+	app.Static("/", "./public")
+
 	initializers.PreUseMiddlewares(app)
 	initializers.InitRoutes(app, serviceManager)
 	initializers.PostUseMiddlewares(app)
