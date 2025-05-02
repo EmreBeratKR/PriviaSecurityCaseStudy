@@ -42,6 +42,14 @@ func (controller *TodoListController) TodoListControllerPost(context *fiber.Ctx)
 	return common.RedirectToHomePage(context)
 }
 
+func (controller *TodoListController) TodoListControllerDelete(context *fiber.Ctx) error {
+	if controller.tryDeleteTodoListByQueryParams(context) {
+		return common.RedirectToHomePage(context)
+	}
+
+	return common.SendStatusInternalServerError(context)
+}
+
 func (controller *TodoListController) getTodoListByQueryParams(context *fiber.Ctx) *models.TodoListModel {
 	todoListId := context.Query("id")
 
@@ -59,7 +67,7 @@ func (controller *TodoListController) getTodoListByQueryParams(context *fiber.Ct
 }
 
 func (controller *TodoListController) getTodoTasksByTodoListId(todoListId string) []models.TodoTaskModel {
-	response := controller.ServiceManager.TodoTaskService.GetAllByTodoListId(todoListId)
+	response := controller.ServiceManager.TodoTaskService.GetAllNonDeletedByTodoListId(todoListId)
 
 	if !response.IsSuccess() {
 		return nil
@@ -76,6 +84,18 @@ func (controller *TodoListController) tryAddTodoListForAuthenticatedUser(context
 	}
 
 	response := controller.ServiceManager.TodoListService.AddWithUserId(userId)
+
+	return response.IsSuccess()
+}
+
+func (controller *TodoListController) tryDeleteTodoListByQueryParams(context *fiber.Ctx) bool {
+	id := context.Query("id")
+
+	if id == "" {
+		return false
+	}
+
+	response := controller.ServiceManager.TodoListService.DeleteById(id)
 
 	return response.IsSuccess()
 }

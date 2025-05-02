@@ -11,3 +11,7 @@ type TodoTaskModel struct {
 	Content     string     `json:"content"`
 	IsCompleted bool       `json:"is_completed"`
 }
+
+func (model *TodoTaskModel) IsDeleted() bool {
+	return model.DeletedAt != nil
+}

@@ -64,10 +64,10 @@ func (service *MockTodoListService) GetById(id string) *models.TodoListGetRespon
 	}
 }
 
-func (service *MockTodoListService) GetAllByUserId(userId string) *models.TodoListGetAllResponseModel {
-	var filtered []models.TodoListModel
+func (service *MockTodoListService) GetAllNonDeletedByUserId(userId string) *models.TodoListGetAllResponseModel {
+	var filtered = make([]models.TodoListModel, 0)
 	for _, todo := range service.TodoLists {
-		if todo.UserId == userId {
+		if todo.UserId == userId && !todo.IsDeleted() {
 			filtered = append(filtered, todo)
 		}
 	}
@@ -96,5 +96,23 @@ func (service *MockTodoListService) AddWithUserId(userId string) *models.EmptyRe
 	return &models.EmptyResponseModel{
 		Status:  "success",
 		Message: "todo list added",
+	}
+}
+
+func (service *MockTodoListService) DeleteById(id string) *models.EmptyResponseModel {
+	for i, todoList := range service.TodoLists {
+		if todoList.Id == id && todoList.DeletedAt == nil {
+			now := time.Now()
+			service.TodoLists[i].DeletedAt = &now
+			return &models.EmptyResponseModel{
+				Status:  "success",
+				Message: "todo list deleted",
+			}
+		}
+	}
+
+	return &models.EmptyResponseModel{
+		Status:  "not_found",
+		Message: "todo list not found or already deleted",
 	}
 }

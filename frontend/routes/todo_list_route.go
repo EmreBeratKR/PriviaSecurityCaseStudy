@@ -15,4 +15,5 @@ func MapTodoListRoutes(app *fiber.App, serviceManager *services.ServiceManager) 
 
 	app.Get(path, controller.TodoListControllerGet)
 	app.Post(path, controller.TodoListControllerPost)
+	app.Post(path+"/delete", controller.TodoListControllerDelete)
 }

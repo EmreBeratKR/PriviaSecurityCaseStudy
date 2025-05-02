@@ -32,7 +32,7 @@ func (controller *IndexController) getAllTodoListsForAuthenticatedUser(context *
 		return nil
 	}
 
-	response := controller.ServiceManager.TodoListService.GetAllByUserId(userId)
+	response := controller.ServiceManager.TodoListService.GetAllNonDeletedByUserId(userId)
 
 	if !response.IsSuccess() {
 		return nil

@@ -132,7 +132,30 @@
       z-index: 10;
     }
 
+    .todo-card-delete-btn {
+      position: absolute;
+      top: 5%;
+      right: 5%;
+      transform: translate(-5%, -5%);
+      background-color: #d81d1d;
+      color: #ffffff;
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+      transition: transform 0.1s ease-in-out;
+    }
+
+    .todo-card-delete-btn:hover {
+      transform: scale(1.03);
+    }
+
     .todo-list-card:hover .open-hint {
+      opacity: 1;
+    }
+
+    .todo-list-card:hover .todo-card-delete-btn {
       opacity: 1;
     }
 

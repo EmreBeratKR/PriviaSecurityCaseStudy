@@ -21,3 +21,7 @@ func (model *TodoListModel) GetModifiedAtFormatted() string {
 func (model *TodoListModel) GetRemainingTasks() int {
 	return model.TotalTasks - model.CompletedTasks
 }
+
+func (model *TodoListModel) IsDeleted() bool {
+	return model.DeletedAt != nil
+}
