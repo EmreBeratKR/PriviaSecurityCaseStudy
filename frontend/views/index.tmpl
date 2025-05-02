@@ -22,6 +22,12 @@
       display: block;
     }
 
+    button {
+      text-decoration: none;
+      display: block;
+      border: none;
+    }
+
     .top-bar {
       position: sticky;
       top: 0;
@@ -57,6 +63,28 @@
 
     .logout-button:hover {
       background-color: #dc2626;
+    }
+
+    .title-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .create-btn {
+      background-color: #10b981;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    .create-btn:hover {
+      background-color: #059669;
+      cursor: pointer;
     }
 
     .content {
@@ -187,7 +215,12 @@
   </div>
 
   <div class="content">
-    <h1>Your Todo Lists</h1>
+    <div class="title-bar">
+      <h1>Your Todo Lists</h1>
+      <form method="POST" action="/todo-list">
+        <button type="submit" class="create-btn">+ New List</button>
+      </form>
+    </div>
     <div class="scroll-area">
         {{range .TodoLists}}
             {{template "todo_list_card" .}}

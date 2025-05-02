@@ -1,12 +1,14 @@
 package services
 
 import (
+	"strconv"
 	"time"
 	"todo-frontend-web-app/models"
 )
 
 type MockTodoListService struct {
-	TodoLists []models.TodoListModel
+	TodoLists     []models.TodoListModel
+	TodoListCount int
 }
 
 func (service *MockTodoListService) Init() {
@@ -45,6 +47,7 @@ func (service *MockTodoListService) Init() {
 			TotalTasks:        4,
 		},
 	}
+	service.TodoListCount = len(service.TodoLists)
 }
 
 func (service *MockTodoListService) GetById(id string) *models.TodoListGetResponseModel {
@@ -71,5 +74,27 @@ func (service *MockTodoListService) GetAllByUserId(userId string) *models.TodoLi
 	return &models.TodoListGetAllResponseModel{
 		Status:    "success",
 		TodoLists: filtered,
+	}
+}
+
+func (service *MockTodoListService) AddWithUserId(userId string) *models.EmptyResponseModel {
+	id := strconv.Itoa(service.TodoListCount)
+	service.TodoLists = append(service.TodoLists, models.TodoListModel{
+		Id:                id,
+		UserId:            userId,
+		Name:              "New Todo List #" + id,
+		CreatedAt:         time.Now(),
+		ModifiedAt:        time.Now(),
+		DeletedAt:         nil,
+		CompletionPercent: 0,
+		CompletedTasks:    0,
+		TotalTasks:        0,
+	})
+
+	service.TodoListCount += 1
+
+	return &models.EmptyResponseModel{
+		Status:  "success",
+		Message: "todo list added",
 	}
 }

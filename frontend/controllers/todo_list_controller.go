@@ -32,6 +32,16 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 	})
 }
 
+func (controller *TodoListController) TodoListControllerPost(context *fiber.Ctx) error {
+	success := controller.tryAddTodoListForAuthenticatedUser(context)
+
+	if !success {
+		return common.SendStatusInternalServerError(context)
+	}
+
+	return common.RedirectToHomePage(context)
+}
+
 func (controller *TodoListController) getTodoListByQueryParams(context *fiber.Ctx) *models.TodoListModel {
 	todoListId := context.Query("id")
 
@@ -56,4 +66,16 @@ func (controller *TodoListController) getTodoTasksByTodoListId(todoListId string
 	}
 
 	return response.TodoTasks
+}
+
+func (controller *TodoListController) tryAddTodoListForAuthenticatedUser(context *fiber.Ctx) bool {
+	userId := common.GetAuthUserId(context)
+
+	if userId == "" {
+		return false
+	}
+
+	response := controller.ServiceManager.TodoListService.AddWithUserId(userId)
+
+	return response.IsSuccess()
 }

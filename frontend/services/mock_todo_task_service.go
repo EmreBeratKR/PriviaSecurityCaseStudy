@@ -96,7 +96,7 @@ func (service *MockTodoTaskService) Init() {
 }
 
 func (service *MockTodoTaskService) GetAllByTodoListId(todoListId string) *models.TodoTaskGetAllResponseModel {
-	var filtered []models.TodoTaskModel
+	filtered := make([]models.TodoTaskModel, 0)
 
 	for _, task := range service.TodoTasks {
 		if task.TodoListId == todoListId && task.DeletedAt == nil {
