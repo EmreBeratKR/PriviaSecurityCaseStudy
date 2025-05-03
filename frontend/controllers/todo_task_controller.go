@@ -13,7 +13,7 @@ type TodoTaskController struct {
 }
 
 func (controller *TodoTaskController) TodoTaskControllerPost(context *fiber.Ctx) error {
-	request := controller.parseTodoTaskRequest(context)
+	request := controller.parseCreateTodoTaskRequest(context)
 
 	if request == nil {
 		return common.SendStatusBadRequest(context)
@@ -42,7 +42,21 @@ func (controller *TodoTaskController) TodoTaskControllerToggle(context *fiber.Ct
 	return common.SendStatusInternalServerError(context)
 }
 
-func (controller *TodoTaskController) parseTodoTaskRequest(context *fiber.Ctx) *models.CreateTodoTaskRequestModel {
+func (controller *TodoTaskController) TodoTaskControllerEdit(context *fiber.Ctx) error {
+	request := controller.parseEditTodoTaskRequest(context)
+
+	if request == nil {
+		return common.SendStatusBadRequest(context)
+	}
+
+	if controller.tryEditTodoTaskByRequest(request) {
+		return controller.redirectBackByQueryParams(context)
+	}
+
+	return common.SendStatusInternalServerError(context)
+}
+
+func (controller *TodoTaskController) parseCreateTodoTaskRequest(context *fiber.Ctx) *models.CreateTodoTaskRequestModel {
 	var request models.CreateTodoTaskRequestModel
 
 	if err := context.BodyParser(&request); err != nil {
@@ -78,6 +92,22 @@ func (controller *TodoTaskController) tryToggleTodoTaskByQueryParams(context *fi
 	}
 
 	response := controller.ServiceManager.TodoTaskService.ToggleIsCompletedById(id)
+
+	return response.IsSuccess()
+}
+
+func (controller *TodoTaskController) parseEditTodoTaskRequest(context *fiber.Ctx) *models.EditTodoTaskRequestModel {
+	var request models.EditTodoTaskRequestModel
+
+	if err := context.BodyParser(&request); err != nil {
+		return nil
+	}
+
+	return &request
+}
+
+func (controller *TodoTaskController) tryEditTodoTaskByRequest(request *models.EditTodoTaskRequestModel) bool {
+	response := controller.ServiceManager.TodoTaskService.UpdateContentById(request.Id, request.Content)
 
 	return response.IsSuccess()
 }

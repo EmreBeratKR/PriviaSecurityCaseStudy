@@ -16,7 +16,7 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 	todoList := controller.getTodoListByQueryParams(context)
 
 	if todoList == nil {
-		return common.SendStatusInternalServerError(context)
+		return common.SendStatusBadRequest(context)
 	}
 
 	todoTasks := controller.getTodoTasksByTodoListId(todoList.Id)
@@ -25,11 +25,36 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 		return common.SendStatusInternalServerError(context)
 	}
 
+	editTodoTaskId := context.Query("edit_todo_task_id")
+	isEdittingTodoTask := editTodoTaskId != ""
+
+	if !isEdittingTodoTask {
+		return context.Render("todo_list", fiber.Map{
+			"TodoListId":            todoList.Id,
+			"Name":                  todoList.Name,
+			"CompletionPercent":     todoList.CompletionPercent,
+			"TodoTasks":             todoTasks,
+			"EditTodoTaskId":        editTodoTaskId,
+			"IsNotEdittingTodoTask": !isEdittingTodoTask,
+			"IsEdittingTodoTask":    isEdittingTodoTask,
+		})
+	}
+
+	todoTask := controller.getTodoTaskById(editTodoTaskId)
+
+	if todoTask == nil {
+		return common.SendStatusInternalServerError(context)
+	}
+
 	return context.Render("todo_list", fiber.Map{
-		"TodoListId":        todoList.Id,
-		"Name":              todoList.Name,
-		"CompletionPercent": todoList.CompletionPercent,
-		"TodoTasks":         todoTasks,
+		"TodoListId":            todoList.Id,
+		"Name":                  todoList.Name,
+		"CompletionPercent":     todoList.CompletionPercent,
+		"TodoTasks":             todoTasks,
+		"EditTodoTaskId":        editTodoTaskId,
+		"IsEdittingTodoTask":    isEdittingTodoTask,
+		"IsNotEdittingTodoTask": !isEdittingTodoTask,
+		"EditTaskContent":       todoTask.Content,
 	})
 }
 
@@ -99,4 +124,14 @@ func (controller *TodoListController) tryDeleteTodoListByQueryParams(context *fi
 	response := controller.ServiceManager.TodoListService.DeleteById(id)
 
 	return response.IsSuccess()
+}
+
+func (controller *TodoListController) getTodoTaskById(id string) *models.TodoTaskModel {
+	response := controller.ServiceManager.TodoTaskService.GetById(id)
+
+	if response.IsSuccess() {
+		return &response.TodoTask
+	}
+
+	return nil
 }

@@ -99,6 +99,23 @@ func (service *MockTodoTaskService) Init() {
 	service.TodoTaskCount = len(service.TodoTasks)
 }
 
+func (service *MockTodoTaskService) GetById(id string) *models.TodoTaskGetResponseModel {
+	for _, task := range service.TodoTasks {
+		if task.Id == id {
+			return &models.TodoTaskGetResponseModel{
+				Status:   "success",
+				Message:  "Task retrieved successfully",
+				TodoTask: task,
+			}
+		}
+	}
+
+	return &models.TodoTaskGetResponseModel{
+		Status:  "not_found",
+		Message: "todo task not found",
+	}
+}
+
 func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(todoListId string) *models.TodoTaskGetAllResponseModel {
 	filtered := make([]models.TodoTaskModel, 0)
 
@@ -207,5 +224,23 @@ func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.Emp
 	return &models.EmptyResponseModel{
 		Status:  "not_found",
 		Message: "todo task not found or already deleted",
+	}
+}
+
+func (service *MockTodoTaskService) UpdateContentById(id string, content string) *models.EmptyResponseModel {
+	for i, todoList := range service.TodoTasks {
+		if todoList.Id == id {
+			service.TodoTasks[i].Content = string([]byte(content)) // to fix fiber.Ctx.BodyParser bug
+
+			return &models.EmptyResponseModel{
+				Status:  "success",
+				Message: "todo task content updated",
+			}
+		}
+	}
+
+	return &models.EmptyResponseModel{
+		Status:  "not_found",
+		Message: "todo task not found",
 	}
 }
