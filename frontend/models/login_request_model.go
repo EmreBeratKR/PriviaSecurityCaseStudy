@@ -1,6 +1,6 @@
 package models
 
 type LoginRequestModel struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `form:"username"`
+	Password string `form:"password"`
 }

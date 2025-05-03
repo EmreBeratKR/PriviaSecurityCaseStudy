@@ -145,10 +145,13 @@
   <div class="container">
     <div class="title">{{.Name}}</div>
 
-    <div class="input-row">
-      <input type="text" placeholder="Enter task here">
-      <button>Add</button>
-    </div>
+    <form method="POST" action="todo-task">
+      <input type="hidden" name="list_id" value="{{.TodoListId}}">
+      <div class="input-row">
+        <input name="content" type="text" placeholder="Enter task here" required autofocus>
+        <button type="submit">Add</button>
+      </div>
+    </form>
 
     <div class="progress-bar-wrapper">
       <div class="progress-bar">

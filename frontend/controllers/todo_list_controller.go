@@ -26,6 +26,7 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 	}
 
 	return context.Render("todo_list", fiber.Map{
+		"TodoListId":        todoList.Id,
 		"Name":              todoList.Name,
 		"CompletionPercent": todoList.CompletionPercent,
 		"TodoTasks":         todoTasks,

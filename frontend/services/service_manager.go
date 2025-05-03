@@ -13,7 +13,9 @@ type ServiceManager struct {
 func MockServiceManager() *ServiceManager {
 	todoListService := &MockTodoListService{}
 	todoListService.Init()
-	todoTaskService := &MockTodoTaskService{}
+	todoTaskService := &MockTodoTaskService{
+		TodoListService: todoListService,
+	}
 	todoTaskService.Init()
 	return &ServiceManager{
 		UserService:     &MockUserService{},

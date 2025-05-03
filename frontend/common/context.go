@@ -10,6 +10,10 @@ func RedirectToLoginPage(context *fiber.Ctx) error {
 	return context.Redirect("/login")
 }
 
+func RedirectToTodoListPageById(context *fiber.Ctx, id string) error {
+	return context.Redirect("/todo-list?id=" + id)
+}
+
 func SendStatusBadRequest(context *fiber.Ctx) error {
 	return context.Status(fiber.StatusBadRequest).Render("bad_request", fiber.Map{})
 }

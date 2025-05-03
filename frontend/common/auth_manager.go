@@ -14,7 +14,7 @@ func Login(context *fiber.Ctx, response *models.LoginResponseModel) {
 		Value:    response.Token,
 		Expires:  response.ExpiresAt,
 		HTTPOnly: true,
-		Secure:   os.Getenv("ENVIRONMENT") == "prod",
+		Secure:   IsProductionEnvironment(),
 		SameSite: "Lax",
 	})
 }

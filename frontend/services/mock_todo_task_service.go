@@ -1,12 +1,15 @@
 package services
 
 import (
+	"strconv"
 	"time"
 	"todo-frontend-web-app/models"
 )
 
 type MockTodoTaskService struct {
-	TodoTasks []models.TodoTaskModel
+	TodoListService *MockTodoListService
+	TodoTasks       []models.TodoTaskModel
+	TodoTaskCount   int
 }
 
 func (service *MockTodoTaskService) Init() {
@@ -93,6 +96,7 @@ func (service *MockTodoTaskService) Init() {
 			IsCompleted: false,
 		},
 	}
+	service.TodoTaskCount = len(service.TodoTasks)
 }
 
 func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(todoListId string) *models.TodoTaskGetAllResponseModel {
@@ -108,5 +112,34 @@ func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(todoListId stri
 		Status:    "success",
 		Message:   "Tasks retrieved successfully",
 		TodoTasks: filtered,
+	}
+}
+
+func (service *MockTodoTaskService) AddWithListIdAndContent(todoListId string, content string) *models.EmptyResponseModel {
+	id := strconv.Itoa(service.TodoTaskCount)
+	service.TodoTasks = append(service.TodoTasks, models.TodoTaskModel{
+		Id:          id,
+		TodoListId:  string([]byte(todoListId)), // to fix fiber.Ctx.BodyParser bug
+		CreatedAt:   time.Now(),
+		ModifiedAt:  time.Now(),
+		DeletedAt:   nil,
+		Content:     string([]byte(content)), // to fix fiber.Ctx.BodyParser bug
+		IsCompleted: false,
+	})
+
+	service.TodoTaskCount += 1
+
+	todoListService := service.TodoListService
+	for i := range todoListService.TodoLists {
+		if todoListService.TodoLists[i].Id == todoListId {
+			todoListService.TodoLists[i].TotalTasks += 1
+			todoListService.TodoLists[i].UpdateCompletionPercent()
+			todoListService.TodoLists[i].UpdateModifiedAt()
+		}
+	}
+
+	return &models.EmptyResponseModel{
+		Status:  "success",
+		Message: "todo task added",
 	}
 }
