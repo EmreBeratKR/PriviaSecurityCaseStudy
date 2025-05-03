@@ -19,6 +19,10 @@ func (model *TodoListModel) UpdateModifiedAt() {
 }
 
 func (model *TodoListModel) UpdateCompletionPercent() {
+	if model.TotalTasks <= 0 {
+		model.CompletionPercent = 0
+		return
+	}
 	model.CompletionPercent = (model.CompletedTasks * 100) / model.TotalTasks
 }
 

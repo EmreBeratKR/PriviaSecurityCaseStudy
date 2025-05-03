@@ -9,9 +9,11 @@
       <div class="action-btn edit-btn">
         <img src="/icons/edit.svg" alt="Edit" width="16" height="16">
       </div>
-      <div class="action-btn delete-btn">
-        <img src="/icons/trash.svg" alt="Delete" width="16" height="16">
-      </div>
+      <form method="POST" action="/todo-task/delete?id={{.Id}}&redirect_id={{.TodoListId}}">
+        <button class="action-btn delete-btn" type="submit">
+          <img src="/icons/trash.svg" alt="Delete" width="16" height="16">
+        </button>
+      </form>
     </div>
 </div>
   

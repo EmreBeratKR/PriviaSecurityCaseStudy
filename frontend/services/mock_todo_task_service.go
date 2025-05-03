@@ -143,3 +143,36 @@ func (service *MockTodoTaskService) AddWithListIdAndContent(todoListId string, c
 		Message: "todo task added",
 	}
 }
+
+func (service *MockTodoTaskService) DeleteById(id string) *models.EmptyResponseModel {
+	for i, todoList := range service.TodoTasks {
+		if todoList.Id == id && todoList.DeletedAt == nil {
+			now := time.Now()
+			service.TodoTasks[i].DeletedAt = &now
+
+			isCompleted := service.TodoTasks[i].IsCompleted
+			todoListId := service.TodoTasks[i].TodoListId
+			todoListService := service.TodoListService
+			for i := range todoListService.TodoLists {
+				if todoListService.TodoLists[i].Id == todoListId {
+					todoListService.TodoLists[i].TotalTasks -= 1
+					if isCompleted {
+						todoListService.TodoLists[i].CompletedTasks -= 1
+					}
+					todoListService.TodoLists[i].UpdateCompletionPercent()
+					todoListService.TodoLists[i].UpdateModifiedAt()
+				}
+			}
+
+			return &models.EmptyResponseModel{
+				Status:  "success",
+				Message: "todo task deleted",
+			}
+		}
+	}
+
+	return &models.EmptyResponseModel{
+		Status:  "not_found",
+		Message: "todo task not found or already deleted",
+	}
+}

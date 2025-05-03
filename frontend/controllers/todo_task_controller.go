@@ -26,6 +26,14 @@ func (controller *TodoTaskController) TodoTaskControllerPost(context *fiber.Ctx)
 	return common.SendStatusInternalServerError(context)
 }
 
+func (controller *TodoTaskController) TodoTaskControllerDelete(context *fiber.Ctx) error {
+	if controller.tryDeleteTodoListByQueryParams(context) {
+		return controller.redirectBackByQueryParams(context)
+	}
+
+	return common.SendStatusInternalServerError(context)
+}
+
 func (controller *TodoTaskController) parseTodoTaskRequest(context *fiber.Ctx) *models.CreateTodoTaskRequestModel {
 	var request models.CreateTodoTaskRequestModel
 
@@ -40,4 +48,26 @@ func (controller *TodoTaskController) tryAddTodoTaskByRequest(request *models.Cr
 	response := controller.ServiceManager.TodoTaskService.AddWithListIdAndContent(request.ListId, request.Content)
 
 	return response.IsSuccess()
+}
+
+func (controller *TodoTaskController) tryDeleteTodoListByQueryParams(context *fiber.Ctx) bool {
+	id := context.Query("id")
+
+	if id == "" {
+		return false
+	}
+
+	response := controller.ServiceManager.TodoTaskService.DeleteById(id)
+
+	return response.IsSuccess()
+}
+
+func (controller *TodoTaskController) redirectBackByQueryParams(context *fiber.Ctx) error {
+	redirectId := context.Query("redirect_id")
+
+	if redirectId == "" {
+		return common.SendStatusBadRequest(context)
+	}
+
+	return common.RedirectToTodoListPageById(context, redirectId)
 }
