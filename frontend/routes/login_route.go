@@ -7,10 +7,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func MapLoginRoutes(app *fiber.App, serviceManger *services.ServiceManager) {
+func MapLoginRoutes(app *fiber.App, serviceManager *services.ServiceManager) {
 	var path = "/login"
 	var controller = &controllers.LoginController{
-		ServiceManager: serviceManger,
+		ServiceManager: serviceManager,
 	}
 
 	app.Get(path, controller.LoginControllerGet)

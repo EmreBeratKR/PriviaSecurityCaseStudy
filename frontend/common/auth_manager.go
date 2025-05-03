@@ -2,6 +2,7 @@ package common
 
 import (
 	"os"
+	"time"
 	"todo-frontend-web-app/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,6 +14,17 @@ func Login(context *fiber.Ctx, response *models.LoginResponseModel) {
 		Name:     getAuthCookieName(),
 		Value:    response.Token,
 		Expires:  response.ExpiresAt,
+		HTTPOnly: true,
+		Secure:   IsProductionEnvironment(),
+		SameSite: "Lax",
+	})
+}
+
+func Logout(context *fiber.Ctx) {
+	context.Cookie(&fiber.Cookie{
+		Name:     getAuthCookieName(),
+		Value:    "",
+		Expires:  time.Now().Add(-1 * time.Hour),
 		HTTPOnly: true,
 		Secure:   IsProductionEnvironment(),
 		SameSite: "Lax",
