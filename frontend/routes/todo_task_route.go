@@ -15,4 +15,5 @@ func MapTodoTaskRoutes(app *fiber.App, serviceManager *services.ServiceManager) 
 
 	app.Post(path, controller.TodoTaskControllerPost)
 	app.Post(path+"/delete", controller.TodoTaskControllerDelete)
+	app.Post(path+"/toggle", controller.TodoTaskControllerToggle)
 }

@@ -27,7 +27,15 @@ func (controller *TodoTaskController) TodoTaskControllerPost(context *fiber.Ctx)
 }
 
 func (controller *TodoTaskController) TodoTaskControllerDelete(context *fiber.Ctx) error {
-	if controller.tryDeleteTodoListByQueryParams(context) {
+	if controller.tryDeleteTodoTaskByQueryParams(context) {
+		return controller.redirectBackByQueryParams(context)
+	}
+
+	return common.SendStatusInternalServerError(context)
+}
+
+func (controller *TodoTaskController) TodoTaskControllerToggle(context *fiber.Ctx) error {
+	if controller.tryToggleTodoTaskByQueryParams(context) {
 		return controller.redirectBackByQueryParams(context)
 	}
 
@@ -50,7 +58,7 @@ func (controller *TodoTaskController) tryAddTodoTaskByRequest(request *models.Cr
 	return response.IsSuccess()
 }
 
-func (controller *TodoTaskController) tryDeleteTodoListByQueryParams(context *fiber.Ctx) bool {
+func (controller *TodoTaskController) tryDeleteTodoTaskByQueryParams(context *fiber.Ctx) bool {
 	id := context.Query("id")
 
 	if id == "" {
@@ -58,6 +66,18 @@ func (controller *TodoTaskController) tryDeleteTodoListByQueryParams(context *fi
 	}
 
 	response := controller.ServiceManager.TodoTaskService.DeleteById(id)
+
+	return response.IsSuccess()
+}
+
+func (controller *TodoTaskController) tryToggleTodoTaskByQueryParams(context *fiber.Ctx) bool {
+	id := context.Query("id")
+
+	if id == "" {
+		return false
+	}
+
+	response := controller.ServiceManager.TodoTaskService.ToggleIsCompletedById(id)
 
 	return response.IsSuccess()
 }

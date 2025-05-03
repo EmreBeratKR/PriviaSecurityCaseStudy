@@ -6,4 +6,5 @@ type TodoTaskService interface {
 	GetAllNonDeletedByTodoListId(todoListId string) *models.TodoTaskGetAllResponseModel
 	AddWithListIdAndContent(todoListId string, content string) *models.EmptyResponseModel
 	DeleteById(id string) *models.EmptyResponseModel
+	ToggleIsCompletedById(id string) *models.EmptyResponseModel
 }

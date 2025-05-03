@@ -1,8 +1,10 @@
 <div class="task-card">
     <div class="task-left">
-      <div class="toggle {{if .IsCompleted}}checked{{end}}">
-        {{if .IsCompleted}}✓{{end}}
-      </div>
+      <form method="POST" action="/todo-task/toggle?id={{.Id}}&redirect_id={{.TodoListId}}">
+        <button class="toggle {{if .IsCompleted}}checked{{end}}" type="submit">
+          {{if .IsCompleted}}✓{{end}}
+        </button>
+      </form>
       <div class="task-desc">{{.Content}}</div>
     </div>
     <div class="task-actions">
