@@ -41,7 +41,20 @@ func IsAuthenticatedAsAdmin(context *fiber.Ctx) bool {
 		return false
 	}
 
-	return claims.Role == "admin"
+	return claims.IsAdmin()
+}
+
+func IsAuthorizedForUserId(context *fiber.Ctx, userId string) bool {
+	claims := getUserClaims(context)
+	if claims == nil {
+		return false
+	}
+
+	if claims.IsAdmin() {
+		return true
+	}
+
+	return claims.Subject == userId
 }
 
 func GetAuthUserId(context *fiber.Ctx) string {

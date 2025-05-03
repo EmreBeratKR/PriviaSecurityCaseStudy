@@ -16,7 +16,12 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 	todoList := controller.getTodoListByQueryParams(context)
 
 	if todoList == nil {
-		return common.SendStatusBadRequest(context)
+		return common.SendStatusNotFound(context)
+	}
+
+	userId := todoList.UserId
+	if !common.IsAuthorizedForUserId(context, userId) {
+		return common.SendStatusForbidden(context)
 	}
 
 	todoTasks := controller.getTodoTasksByTodoListId(todoList.Id)
@@ -25,8 +30,13 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 		return common.SendStatusInternalServerError(context)
 	}
 
+	allowEditting := userId == common.GetAuthUserId(context)
 	editTodoTaskId := context.Query("edit_todo_task_id")
 	isEdittingTodoTask := editTodoTaskId != ""
+
+	for i, _ := range todoTasks {
+		todoTasks[i].AllowEditting = allowEditting
+	}
 
 	if !isEdittingTodoTask {
 		return context.Render("todo_list", fiber.Map{
@@ -37,6 +47,7 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 			"EditTodoTaskId":        editTodoTaskId,
 			"IsNotEdittingTodoTask": !isEdittingTodoTask,
 			"IsEdittingTodoTask":    isEdittingTodoTask,
+			"AllowEditting":         allowEditting,
 		})
 	}
 
@@ -55,6 +66,7 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 		"IsEdittingTodoTask":    isEdittingTodoTask,
 		"IsNotEdittingTodoTask": !isEdittingTodoTask,
 		"EditTaskContent":       todoTask.Content,
+		"AllowEditting":         allowEditting,
 	})
 }
 
