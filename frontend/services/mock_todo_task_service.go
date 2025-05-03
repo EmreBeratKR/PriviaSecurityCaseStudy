@@ -1,12 +1,15 @@
 package services
 
 import (
+	"strconv"
 	"time"
 	"todo-frontend-web-app/models"
 )
 
 type MockTodoTaskService struct {
-	TodoTasks []models.TodoTaskModel
+	TodoListService *MockTodoListService
+	TodoTasks       []models.TodoTaskModel
+	TodoTaskCount   int
 }
 
 func (service *MockTodoTaskService) Init() {
@@ -93,6 +96,24 @@ func (service *MockTodoTaskService) Init() {
 			IsCompleted: false,
 		},
 	}
+	service.TodoTaskCount = len(service.TodoTasks)
+}
+
+func (service *MockTodoTaskService) GetById(id string) *models.TodoTaskGetResponseModel {
+	for _, task := range service.TodoTasks {
+		if task.Id == id {
+			return &models.TodoTaskGetResponseModel{
+				Status:   "success",
+				Message:  "Task retrieved successfully",
+				TodoTask: task,
+			}
+		}
+	}
+
+	return &models.TodoTaskGetResponseModel{
+		Status:  "not_found",
+		Message: "todo task not found",
+	}
 }
 
 func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(todoListId string) *models.TodoTaskGetAllResponseModel {
@@ -108,5 +129,118 @@ func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(todoListId stri
 		Status:    "success",
 		Message:   "Tasks retrieved successfully",
 		TodoTasks: filtered,
+	}
+}
+
+func (service *MockTodoTaskService) AddWithListIdAndContent(todoListId string, content string) *models.EmptyResponseModel {
+	id := strconv.Itoa(service.TodoTaskCount)
+	service.TodoTasks = append(service.TodoTasks, models.TodoTaskModel{
+		Id:          id,
+		TodoListId:  string([]byte(todoListId)), // to fix fiber.Ctx.BodyParser bug
+		CreatedAt:   time.Now(),
+		ModifiedAt:  time.Now(),
+		DeletedAt:   nil,
+		Content:     string([]byte(content)), // to fix fiber.Ctx.BodyParser bug
+		IsCompleted: false,
+	})
+
+	service.TodoTaskCount += 1
+
+	todoListService := service.TodoListService
+	for i := range todoListService.TodoLists {
+		if todoListService.TodoLists[i].Id == todoListId {
+			todoListService.TodoLists[i].TotalTasks += 1
+			todoListService.TodoLists[i].UpdateCompletionPercent()
+			todoListService.TodoLists[i].UpdateModifiedAt()
+		}
+	}
+
+	return &models.EmptyResponseModel{
+		Status:  "success",
+		Message: "todo task added",
+	}
+}
+
+func (service *MockTodoTaskService) DeleteById(id string) *models.EmptyResponseModel {
+	for i, todoList := range service.TodoTasks {
+		if todoList.Id == id && todoList.DeletedAt == nil {
+			now := time.Now()
+			service.TodoTasks[i].DeletedAt = &now
+
+			isCompleted := service.TodoTasks[i].IsCompleted
+			todoListId := service.TodoTasks[i].TodoListId
+			todoListService := service.TodoListService
+			for i := range todoListService.TodoLists {
+				if todoListService.TodoLists[i].Id == todoListId {
+					todoListService.TodoLists[i].TotalTasks -= 1
+					if isCompleted {
+						todoListService.TodoLists[i].CompletedTasks -= 1
+					}
+					todoListService.TodoLists[i].UpdateCompletionPercent()
+					todoListService.TodoLists[i].UpdateModifiedAt()
+				}
+			}
+
+			return &models.EmptyResponseModel{
+				Status:  "success",
+				Message: "todo task deleted",
+			}
+		}
+	}
+
+	return &models.EmptyResponseModel{
+		Status:  "not_found",
+		Message: "todo task not found or already deleted",
+	}
+}
+
+func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.EmptyResponseModel {
+	for i, todoList := range service.TodoTasks {
+		if todoList.Id == id && todoList.DeletedAt == nil {
+			service.TodoTasks[i].ToggleIsCompleted()
+			service.TodoTasks[i].UpdateModifiedAt()
+			isCompleted := service.TodoTasks[i].IsCompleted
+			todoListId := service.TodoTasks[i].TodoListId
+			todoListService := service.TodoListService
+			for i := range todoListService.TodoLists {
+				if todoListService.TodoLists[i].Id == todoListId {
+					if isCompleted {
+						todoListService.TodoLists[i].CompletedTasks += 1
+					} else {
+						todoListService.TodoLists[i].CompletedTasks -= 1
+					}
+					todoListService.TodoLists[i].UpdateCompletionPercent()
+					todoListService.TodoLists[i].UpdateModifiedAt()
+				}
+			}
+
+			return &models.EmptyResponseModel{
+				Status:  "success",
+				Message: "todo task deleted",
+			}
+		}
+	}
+
+	return &models.EmptyResponseModel{
+		Status:  "not_found",
+		Message: "todo task not found or already deleted",
+	}
+}
+
+func (service *MockTodoTaskService) UpdateContentById(id string, content string) *models.EmptyResponseModel {
+	for i, todoList := range service.TodoTasks {
+		if todoList.Id == id {
+			service.TodoTasks[i].Content = string([]byte(content)) // to fix fiber.Ctx.BodyParser bug
+
+			return &models.EmptyResponseModel{
+				Status:  "success",
+				Message: "todo task content updated",
+			}
+		}
+	}
+
+	return &models.EmptyResponseModel{
+		Status:  "not_found",
+		Message: "todo task not found",
 	}
 }

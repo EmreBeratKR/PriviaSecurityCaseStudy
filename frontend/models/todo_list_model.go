@@ -14,6 +14,18 @@ type TodoListModel struct {
 	TotalTasks        int        `json:"total_tasks"`
 }
 
+func (model *TodoListModel) UpdateModifiedAt() {
+	model.ModifiedAt = time.Now()
+}
+
+func (model *TodoListModel) UpdateCompletionPercent() {
+	if model.TotalTasks <= 0 {
+		model.CompletionPercent = 0
+		return
+	}
+	model.CompletionPercent = (model.CompletedTasks * 100) / model.TotalTasks
+}
+
 func (model *TodoListModel) GetModifiedAtFormatted() string {
 	return model.ModifiedAt.Format("02-01-2006 15:04")
 }

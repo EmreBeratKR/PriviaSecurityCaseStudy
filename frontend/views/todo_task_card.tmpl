@@ -1,17 +1,25 @@
 <div class="task-card">
     <div class="task-left">
-      <div class="toggle {{if .IsCompleted}}checked{{end}}">
-        {{if .IsCompleted}}✓{{end}}
-      </div>
+      <form method="POST" action="/todo-task/toggle?id={{.Id}}&redirect_id={{.TodoListId}}">
+        <button class="toggle {{if .IsCompleted}}checked{{end}}" type="submit">
+          {{if .IsCompleted}}✓{{end}}
+        </button>
+      </form>
       <div class="task-desc">{{.Content}}</div>
     </div>
     <div class="task-actions">
-      <div class="action-btn edit-btn">
-        <img src="/icons/edit.svg" alt="Edit" width="16" height="16">
-      </div>
-      <div class="action-btn delete-btn">
-        <img src="/icons/trash.svg" alt="Delete" width="16" height="16">
-      </div>
+      <form method="GET" action="/todo-list?id={{.TodoListId}}&edit_todo_task_id={{.Id}}">
+        <input type="hidden" name="id" value="{{.TodoListId}}">
+        <input type="hidden" name="edit_todo_task_id" value="{{.Id}}">
+        <button class="action-btn edit-btn" type="submit">
+          <img src="/icons/edit.svg" alt="Edit" width="16" height="16">
+        </button>
+      </form>
+      <form method="POST" action="/todo-task/delete?id={{.Id}}&redirect_id={{.TodoListId}}">
+        <button class="action-btn delete-btn" type="submit">
+          <img src="/icons/trash.svg" alt="Delete" width="16" height="16">
+        </button>
+      </form>
     </div>
 </div>
   

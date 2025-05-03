@@ -15,3 +15,11 @@ type TodoTaskModel struct {
 func (model *TodoTaskModel) IsDeleted() bool {
 	return model.DeletedAt != nil
 }
+
+func (model *TodoTaskModel) ToggleIsCompleted() {
+	model.IsCompleted = !model.IsCompleted
+}
+
+func (model *TodoTaskModel) UpdateModifiedAt() {
+	model.ModifiedAt = time.Now()
+}
