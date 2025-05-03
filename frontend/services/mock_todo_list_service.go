@@ -77,6 +77,19 @@ func (service *MockTodoListService) GetAllNonDeletedByUserId(userId string) *mod
 	}
 }
 
+func (service *MockTodoListService) GetAllNonDeletedWithoutUserId(userId string) *models.TodoListGetAllResponseModel {
+	var filtered = make([]models.TodoListModel, 0)
+	for _, todo := range service.TodoLists {
+		if todo.UserId != userId && !todo.IsDeleted() {
+			filtered = append(filtered, todo)
+		}
+	}
+	return &models.TodoListGetAllResponseModel{
+		Status:    "success",
+		TodoLists: filtered,
+	}
+}
+
 func (service *MockTodoListService) AddWithUserId(userId string) *models.EmptyResponseModel {
 	id := strconv.Itoa(service.TodoListCount)
 	service.TodoLists = append(service.TodoLists, models.TodoListModel{

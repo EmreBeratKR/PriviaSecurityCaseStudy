@@ -19,9 +19,27 @@ func (controller *IndexController) IndexControllerGet(context *fiber.Ctx) error 
 		return common.SendStatusInternalServerError(context)
 	}
 
+	isAdmin := common.IsAuthenticatedAsAdmin(context)
+
+	if !isAdmin {
+		return context.Render("index", fiber.Map{
+			"Username":  common.GetAuthUsername(context),
+			"TodoLists": todoLists,
+			"IsAdmin":   false,
+		})
+	}
+
+	othersTodoLists := controller.getAllTodoListsForNonAuthenticatedUsers(context)
+
+	if othersTodoLists == nil {
+		return common.SendStatusInternalServerError(context)
+	}
+
 	return context.Render("index", fiber.Map{
-		"Username":  common.GetAuthUsername(context),
-		"TodoLists": todoLists,
+		"Username":        common.GetAuthUsername(context),
+		"TodoLists":       todoLists,
+		"OthersTodoLists": othersTodoLists,
+		"IsAdmin":         true,
 	})
 }
 
@@ -37,6 +55,18 @@ func (controller *IndexController) getAllTodoListsForAuthenticatedUser(context *
 	if !response.IsSuccess() {
 		return nil
 	}
+
+	return response.TodoLists
+}
+
+func (controller *IndexController) getAllTodoListsForNonAuthenticatedUsers(context *fiber.Ctx) []models.TodoListModel {
+	userId := common.GetAuthUserId(context)
+
+	if userId == "" {
+		return nil
+	}
+
+	response := controller.ServiceManager.TodoListService.GetAllNonDeletedWithoutUserId(userId)
 
 	return response.TodoLists
 }

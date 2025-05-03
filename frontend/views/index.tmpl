@@ -251,5 +251,18 @@
     </div>
   </div>
 
+  {{if .IsAdmin}}
+  <div class="content">
+    <div class="title-bar">
+      <h1>Other's Todo Lists</h1>
+    </div>
+    <div class="scroll-area">
+        {{range .OthersTodoLists}}
+            {{template "todo_list_card" .}}
+        {{end}}
+    </div>
+  </div>
+  {{end}}
+
 </body>
 </html>
