@@ -11,7 +11,7 @@ func PreUseMiddlewares(app *fiber.App) {
 	if common.IsDevelopmentEnvironment() {
 		app.Use(middlewares.LoggerMiddleware)
 	}
-	app.Use(middlewares.AuthMiddleware)
+	app.Use(middlewares.AuthenticationMiddleware)
 }
 
 func PostUseMiddlewares(app *fiber.App) {

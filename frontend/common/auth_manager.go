@@ -2,6 +2,7 @@ package common
 
 import (
 	"os"
+	"time"
 	"todo-frontend-web-app/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,8 +20,41 @@ func Login(context *fiber.Ctx, response *models.LoginResponseModel) {
 	})
 }
 
+func Logout(context *fiber.Ctx) {
+	context.Cookie(&fiber.Cookie{
+		Name:     getAuthCookieName(),
+		Value:    "",
+		Expires:  time.Now().Add(-1 * time.Hour),
+		HTTPOnly: true,
+		Secure:   IsProductionEnvironment(),
+		SameSite: "Lax",
+	})
+}
+
 func IsAuthenticated(context *fiber.Ctx) bool {
 	return getUserClaims(context) != nil
+}
+
+func IsAuthenticatedAsAdmin(context *fiber.Ctx) bool {
+	claims := getUserClaims(context)
+	if claims == nil {
+		return false
+	}
+
+	return claims.IsAdmin()
+}
+
+func IsAuthorizedForUserId(context *fiber.Ctx, userId string) bool {
+	claims := getUserClaims(context)
+	if claims == nil {
+		return false
+	}
+
+	if claims.IsAdmin() {
+		return true
+	}
+
+	return claims.Subject == userId
 }
 
 func GetAuthUserId(context *fiber.Ctx) string {

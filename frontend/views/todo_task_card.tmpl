@@ -1,12 +1,19 @@
 <div class="task-card">
-    <div class="task-left">
+  <div class="task-left">
+    {{if .AllowEditting}}
       <form method="POST" action="/todo-task/toggle?id={{.Id}}&redirect_id={{.TodoListId}}">
         <button class="toggle {{if .IsCompleted}}checked{{end}}" type="submit">
           {{if .IsCompleted}}✓{{end}}
         </button>
       </form>
-      <div class="task-desc">{{.Content}}</div>
-    </div>
+    {{else}}
+      <button class="toggle {{if .IsCompleted}}checked{{end}}" disabled>
+        {{if .IsCompleted}}✓{{end}}
+      </button>
+    {{end}}
+    <div class="task-desc">{{.Content}}</div>
+  </div>
+  {{if .AllowEditting}}
     <div class="task-actions">
       <form method="GET" action="/todo-list?id={{.TodoListId}}&edit_todo_task_id={{.Id}}">
         <input type="hidden" name="id" value="{{.TodoListId}}">
@@ -21,5 +28,5 @@
         </button>
       </form>
     </div>
+  {{end}}
 </div>
-  

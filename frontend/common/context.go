@@ -1,6 +1,8 @@
 package common
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+)
 
 func RedirectToHomePage(context *fiber.Ctx) error {
 	return context.Redirect("/")
@@ -16,6 +18,10 @@ func RedirectToTodoListPageById(context *fiber.Ctx, id string) error {
 
 func SendStatusBadRequest(context *fiber.Ctx) error {
 	return context.Status(fiber.StatusBadRequest).Render("bad_request", fiber.Map{})
+}
+
+func SendStatusForbidden(context *fiber.Ctx) error {
+	return context.Status(fiber.StatusForbidden).Render("forbidden", fiber.Map{})
 }
 
 func SendStatusNotFound(context *fiber.Ctx) error {

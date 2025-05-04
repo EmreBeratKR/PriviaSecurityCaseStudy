@@ -7,3 +7,7 @@ type UserClaims struct {
 	Role     string `json:"role"`
 	jwt.RegisteredClaims
 }
+
+func (model *UserClaims) IsAdmin() bool {
+	return model.Role == "admin"
+}

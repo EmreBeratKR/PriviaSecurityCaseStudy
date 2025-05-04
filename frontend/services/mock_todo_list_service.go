@@ -15,7 +15,7 @@ func (service *MockTodoListService) Init() {
 	service.TodoLists = []models.TodoListModel{
 		{
 			Id:                "0",
-			UserId:            "1234567890",
+			UserId:            "0",
 			Name:              "Work Tasks",
 			CreatedAt:         time.Now(),
 			ModifiedAt:        time.Now(),
@@ -26,7 +26,7 @@ func (service *MockTodoListService) Init() {
 		},
 		{
 			Id:                "1",
-			UserId:            "1234567890",
+			UserId:            "0",
 			Name:              "Personal Goals",
 			CreatedAt:         time.Now(),
 			ModifiedAt:        time.Now(),
@@ -37,7 +37,7 @@ func (service *MockTodoListService) Init() {
 		},
 		{
 			Id:                "2",
-			UserId:            "1234567890",
+			UserId:            "1",
 			Name:              "Shopping List",
 			CreatedAt:         time.Now(),
 			ModifiedAt:        time.Now(),
@@ -68,6 +68,19 @@ func (service *MockTodoListService) GetAllNonDeletedByUserId(userId string) *mod
 	var filtered = make([]models.TodoListModel, 0)
 	for _, todo := range service.TodoLists {
 		if todo.UserId == userId && !todo.IsDeleted() {
+			filtered = append(filtered, todo)
+		}
+	}
+	return &models.TodoListGetAllResponseModel{
+		Status:    "success",
+		TodoLists: filtered,
+	}
+}
+
+func (service *MockTodoListService) GetAllNonDeletedWithoutUserId(userId string) *models.TodoListGetAllResponseModel {
+	var filtered = make([]models.TodoListModel, 0)
+	for _, todo := range service.TodoLists {
+		if todo.UserId != userId && !todo.IsDeleted() {
 			filtered = append(filtered, todo)
 		}
 	}

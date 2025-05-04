@@ -43,6 +43,10 @@
       border-radius: 5px;
     }
 
+    .input-row input:disabled {
+      cursor: not-allowed;
+    }
+
     .input-row button {
       padding: 0.5rem 1rem;
       background-color: #10b981;
@@ -55,6 +59,17 @@
 
     .input-row button:hover {
       background-color: #059669;
+      color: white;
+    }
+
+    .input-row button:disabled {
+      padding: 0.5rem 1rem;
+      background-color: #7bb2a0;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: not-allowed;
     }
 
     .progress-bar-wrapper {
@@ -107,11 +122,17 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
     }
 
     .toggle:hover {
       cursor: pointer;
       transform: scale(1.1);
+    }
+
+    .toggle:disabled:hover {
+      cursor: not-allowed;
+      transform: scale(1);
     }
 
     .toggle.checked {
@@ -217,6 +238,7 @@
   <div class="container">
     <div class="title">{{.Name}}</div>
 
+    {{if .AllowEditting}}
     <form method="POST" action="todo-task">
       <input type="hidden" name="list_id" value="{{.TodoListId}}">
       <div class="input-row">
@@ -224,6 +246,12 @@
         <button type="submit">Add</button>
       </div>
     </form>
+    {{else}}
+    <div class="input-row">
+      <input disabled placeholder="🔒locked">
+      <button disabled>Add</button>
+    </div>
+    {{end}}
 
     <div class="progress-bar-wrapper">
       <div class="progress-bar">
