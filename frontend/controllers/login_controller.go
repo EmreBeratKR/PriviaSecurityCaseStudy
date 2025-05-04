@@ -27,6 +27,10 @@ func (controller *LoginController) LoginControllerPost(context *fiber.Ctx) error
 		return common.SendStatusBadRequest(context)
 	}
 
+	if !loginRequest.IsValid() {
+		return common.SendStatusBadRequest(context)
+	}
+
 	response := controller.sendLoginRequest(loginRequest)
 
 	if response.IsNotSuccess() {
