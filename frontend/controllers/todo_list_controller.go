@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log"
 	"todo-frontend-web-app/common"
 	"todo-frontend-web-app/services"
 
@@ -22,13 +21,11 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 
 	todoListsResponse := controller.ServiceManager.TodoListService.GetById(todoListId)
 	if todoListsResponse.IsNotSuccess() {
-		log.Println("from get list")
 		return common.SendErrorStatus(todoListsResponse.Status, context)
 	}
 
 	todoTasksResponse := controller.ServiceManager.TodoTaskService.GetAllNonDeletedByTodoListId(todoListId)
 	if todoTasksResponse.IsNotSuccess() {
-		log.Println("from get task")
 		return common.SendErrorStatus(todoTasksResponse.Status, context)
 	}
 
