@@ -121,7 +121,13 @@ func (controller *TodoListController) tryAddTodoListForAuthenticatedUser(context
 		return false
 	}
 
-	response := controller.ServiceManager.TodoListService.AddWithUserId(userId)
+	name := context.FormValue("content")
+
+	if name == "" {
+		return false
+	}
+
+	response := controller.ServiceManager.TodoListService.AddWithUserIdAndName(userId, name)
 
 	return response.IsSuccess()
 }

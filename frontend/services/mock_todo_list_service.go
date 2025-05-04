@@ -90,12 +90,12 @@ func (service *MockTodoListService) GetAllNonDeletedWithoutUserId(userId string)
 	}
 }
 
-func (service *MockTodoListService) AddWithUserId(userId string) *models.EmptyResponseModel {
+func (service *MockTodoListService) AddWithUserIdAndName(userId string, name string) *models.EmptyResponseModel {
 	id := strconv.Itoa(service.TodoListCount)
 	service.TodoLists = append(service.TodoLists, models.TodoListModel{
 		Id:                id,
 		UserId:            userId,
-		Name:              "New Todo List #" + id,
+		Name:              string([]byte(name)), // to fix fiber.Ctx.FormValue bug
 		CreatedAt:         time.Now(),
 		ModifiedAt:        time.Now(),
 		DeletedAt:         nil,

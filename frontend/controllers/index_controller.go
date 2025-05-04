@@ -19,13 +19,15 @@ func (controller *IndexController) IndexControllerGet(context *fiber.Ctx) error 
 		return common.SendStatusInternalServerError(context)
 	}
 
+	isCreatingNewList := context.Query("create") != ""
 	isAdmin := common.IsAuthenticatedAsAdmin(context)
 
 	if !isAdmin {
 		return context.Render("index", fiber.Map{
-			"Username":  common.GetAuthUsername(context),
-			"TodoLists": todoLists,
-			"IsAdmin":   false,
+			"Username":          common.GetAuthUsername(context),
+			"TodoLists":         todoLists,
+			"IsAdmin":           false,
+			"IsCreatingNewList": isCreatingNewList,
 		})
 	}
 
@@ -36,10 +38,11 @@ func (controller *IndexController) IndexControllerGet(context *fiber.Ctx) error 
 	}
 
 	return context.Render("index", fiber.Map{
-		"Username":        common.GetAuthUsername(context),
-		"TodoLists":       todoLists,
-		"OthersTodoLists": othersTodoLists,
-		"IsAdmin":         true,
+		"Username":          common.GetAuthUsername(context),
+		"TodoLists":         todoLists,
+		"OthersTodoLists":   othersTodoLists,
+		"IsAdmin":           true,
+		"IsCreatingNewList": isCreatingNewList,
 	})
 }
 

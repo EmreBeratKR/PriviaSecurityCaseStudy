@@ -6,6 +6,6 @@ type TodoListService interface {
 	GetById(id string) *models.TodoListGetResponseModel
 	GetAllNonDeletedByUserId(userId string) *models.TodoListGetAllResponseModel
 	GetAllNonDeletedWithoutUserId(userId string) *models.TodoListGetAllResponseModel
-	AddWithUserId(userId string) *models.EmptyResponseModel
+	AddWithUserIdAndName(userId string, name string) *models.EmptyResponseModel
 	DeleteById(id string) *models.EmptyResponseModel
 }
