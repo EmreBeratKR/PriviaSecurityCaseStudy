@@ -3,7 +3,7 @@ package interfaces
 import "todo-frontend-web-app/models"
 
 type TodoListService interface {
-	GetById(id string) *models.TodoListGetResponseModel
+	GetNonDeletedById(id string) *models.TodoListGetResponseModel
 	GetAllNonDeleted() *models.TodoListGetAllResponseModel
 	GetAllNonDeletedByUserId(userId string) *models.TodoListGetAllResponseModel
 	AddWithUserIdAndName(userId string, name string) *models.EmptyResponseModel

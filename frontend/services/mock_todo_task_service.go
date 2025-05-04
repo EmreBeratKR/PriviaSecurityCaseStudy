@@ -3,6 +3,7 @@ package services
 import (
 	"strconv"
 	"time"
+	"todo-frontend-web-app/common"
 	"todo-frontend-web-app/models"
 )
 
@@ -100,33 +101,8 @@ func (service *MockTodoTaskService) Init() {
 	service.TodoTaskCount = len(service.TodoTasks)
 }
 
-func (service *MockTodoTaskService) GetById(id string) *models.TodoTaskGetResponseModel {
-	for _, task := range service.TodoTasks {
-		if task.Id == id {
-			todoListResponse := service.TodoListService.GetById(task.TodoListId)
-
-			if todoListResponse.IsNotSuccess() {
-				return &models.TodoTaskGetResponseModel{
-					StatusModel: todoListResponse.StatusModel,
-				}
-			}
-
-			return &models.TodoTaskGetResponseModel{
-				StatusModel: models.StatusSuccess(),
-				Message:     "Task retrieved successfully",
-				TodoTask:    task,
-			}
-		}
-	}
-
-	return &models.TodoTaskGetResponseModel{
-		StatusModel: models.StatusNotFound(),
-		Message:     "todo task not found",
-	}
-}
-
 func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(todoListId string) *models.TodoTaskGetAllResponseModel {
-	todoListResponse := service.TodoListService.GetById(todoListId)
+	todoListResponse := service.TodoListService.GetNonDeletedById(todoListId)
 
 	if todoListResponse.IsNotSuccess() {
 		return &models.TodoTaskGetAllResponseModel{
@@ -150,10 +126,17 @@ func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(todoListId stri
 }
 
 func (service *MockTodoTaskService) AddWithListIdAndContent(todoListId string, content string) *models.EmptyResponseModel {
-	todoListResponse := service.TodoListService.GetById(todoListId)
+	todoListResponse := service.TodoListService.GetNonDeletedById(todoListId)
 	if todoListResponse.IsNotSuccess() {
 		return &models.EmptyResponseModel{
 			StatusModel: todoListResponse.StatusModel,
+		}
+	}
+
+	userId := common.GetAuthUserId(service.ServiceManager.Context)
+	if userId != todoListResponse.TodoList.UserId {
+		return &models.EmptyResponseModel{
+			StatusModel: models.StatusForbidden(),
 		}
 	}
 
@@ -187,11 +170,22 @@ func (service *MockTodoTaskService) AddWithListIdAndContent(todoListId string, c
 
 func (service *MockTodoTaskService) DeleteById(id string) *models.EmptyResponseModel {
 	for i, todoTask := range service.TodoTasks {
-		if todoTask.Id == id && todoTask.DeletedAt == nil {
-			todoListResponse := service.TodoListService.GetById(todoTask.TodoListId)
+		if todoTask.Id == id {
+			todoListResponse := service.TodoListService.GetNonDeletedById(todoTask.TodoListId)
 			if todoListResponse.IsNotSuccess() {
 				return &models.EmptyResponseModel{
 					StatusModel: todoListResponse.StatusModel,
+				}
+			}
+
+			if todoTask.IsDeleted() {
+				break
+			}
+
+			userId := common.GetAuthUserId(service.ServiceManager.Context)
+			if userId != todoListResponse.TodoList.UserId {
+				return &models.EmptyResponseModel{
+					StatusModel: models.StatusForbidden(),
 				}
 			}
 
@@ -227,11 +221,22 @@ func (service *MockTodoTaskService) DeleteById(id string) *models.EmptyResponseM
 
 func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.EmptyResponseModel {
 	for i, todoTask := range service.TodoTasks {
-		if todoTask.Id == id && todoTask.DeletedAt == nil {
-			todoListResponse := service.TodoListService.GetById(todoTask.TodoListId)
+		if todoTask.Id == id {
+			todoListResponse := service.TodoListService.GetNonDeletedById(todoTask.TodoListId)
 			if todoListResponse.IsNotSuccess() {
 				return &models.EmptyResponseModel{
 					StatusModel: todoListResponse.StatusModel,
+				}
+			}
+
+			if todoTask.IsDeleted() {
+				break
+			}
+
+			userId := common.GetAuthUserId(service.ServiceManager.Context)
+			if userId != todoListResponse.TodoList.UserId {
+				return &models.EmptyResponseModel{
+					StatusModel: models.StatusForbidden(),
 				}
 			}
 
@@ -254,7 +259,7 @@ func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.Emp
 
 			return &models.EmptyResponseModel{
 				StatusModel: models.StatusSuccess(),
-				Message:     "todo task deleted",
+				Message:     "todo task updated",
 			}
 		}
 	}
@@ -268,12 +273,24 @@ func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.Emp
 func (service *MockTodoTaskService) UpdateContentById(id string, content string) *models.EmptyResponseModel {
 	for i, todoTask := range service.TodoTasks {
 		if todoTask.Id == id {
-			todoListResponse := service.TodoListService.GetById(todoTask.TodoListId)
+			todoListResponse := service.TodoListService.GetNonDeletedById(todoTask.TodoListId)
 			if todoListResponse.IsNotSuccess() {
 				return &models.EmptyResponseModel{
 					StatusModel: todoListResponse.StatusModel,
 				}
 			}
+
+			if todoTask.IsDeleted() {
+				break
+			}
+
+			userId := common.GetAuthUserId(service.ServiceManager.Context)
+			if userId != todoListResponse.TodoList.UserId {
+				return &models.EmptyResponseModel{
+					StatusModel: models.StatusForbidden(),
+				}
+			}
+
 			service.TodoTasks[i].Content = string([]byte(content)) // to fix fiber.Ctx.BodyParser bug
 
 			return &models.EmptyResponseModel{

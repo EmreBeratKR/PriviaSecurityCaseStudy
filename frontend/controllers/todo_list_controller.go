@@ -19,7 +19,7 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 		return common.SendStatusBadRequest(context)
 	}
 
-	todoListsResponse := controller.ServiceManager.TodoListService.GetById(todoListId)
+	todoListsResponse := controller.ServiceManager.TodoListService.GetNonDeletedById(todoListId)
 	if todoListsResponse.IsNotSuccess() {
 		return common.SendErrorStatus(todoListsResponse.Status, context)
 	}
@@ -31,7 +31,7 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 
 	userId := todoListsResponse.TodoList.UserId
 	allowEditting := userId == common.GetAuthUserId(context)
-	isEdittingListName := context.Query("edit_name") != ""
+	isEdittingListName := context.Query("edit_name") != "" && allowEditting
 	editTodoTaskId := context.Query("edit_todo_task_id")
 	editTaskContent := ""
 	isEdittingTodoTask := editTodoTaskId != ""
@@ -60,9 +60,12 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 func (controller *TodoListController) TodoListControllerPost(context *fiber.Ctx) error {
 	controller.ServiceManager.SetContext(context)
 
-	userId := common.GetAuthUserId(context)
+	userId := context.FormValue("user_id")
+	if userId == "" {
+		return common.SendStatusBadRequest(context)
+	}
 
-	name := context.Query("name")
+	name := context.FormValue("name")
 	if name == "" {
 		return common.SendStatusBadRequest(context)
 	}
@@ -78,7 +81,7 @@ func (controller *TodoListController) TodoListControllerPost(context *fiber.Ctx)
 func (controller *TodoListController) TodoListControllerDelete(context *fiber.Ctx) error {
 	controller.ServiceManager.SetContext(context)
 
-	id := context.Query("id")
+	id := context.FormValue("id")
 	if id == "" {
 		return common.SendStatusBadRequest(context)
 	}

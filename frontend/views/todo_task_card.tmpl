@@ -1,8 +1,9 @@
 <div class="task-card">
   <div class="task-left">
     {{if .AllowEditting}}
-      <form method="POST" action="/todo-task/patch?redirect_id={{.TodoListId}}">
+      <form method="POST" action="/todo-task/patch">
         <input name="id" value="{{.Id}}" hidden>
+        <input name="redirect_id" value="{{.TodoListId}}" hidden>
         <input name="action" value="toggle" hidden>
         <button class="toggle {{if .IsCompleted}}checked{{end}}" type="submit">
           {{if .IsCompleted}}✓{{end}}

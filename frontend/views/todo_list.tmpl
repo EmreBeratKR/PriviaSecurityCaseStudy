@@ -251,7 +251,7 @@
 <body>
   <div class="container">
     {{if .IsEdittingListName}}
-      <form id="edit-list-name-form" method="POST" action="todo-list/patch?redirect_id={{.TodoListId}}">
+      <form id="edit-list-name-form" method="POST" action="todo-list/patch">
         <input name="id" value="{{.TodoListId}}" hidden>
         <input class="title-input" name="name" type="text" placeholder="Enter name here" value="{{.Name}}" required autofocus onfocus="this.select()" onblur="document.getElementById('edit-list-name-form').submit()">
         <button type="submit" hidden></button>

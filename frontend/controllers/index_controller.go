@@ -41,6 +41,7 @@ func (controller *IndexController) sendAdminPage(context *fiber.Ctx) error {
 	})
 
 	return context.Render("index", fiber.Map{
+		"UserId":            userId,
 		"Username":          common.GetAuthUsername(context),
 		"TodoLists":         ownedTodoLists,
 		"OthersTodoLists":   notOwnedTodoLists,
@@ -58,6 +59,7 @@ func (controller *IndexController) sendUserPage(context *fiber.Ctx) error {
 	}
 
 	return context.Render("index", fiber.Map{
+		"UserId":            userId,
 		"Username":          common.GetAuthUsername(context),
 		"TodoLists":         todoListsResponse.TodoLists,
 		"IsAdmin":           false,

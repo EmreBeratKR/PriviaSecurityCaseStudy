@@ -52,10 +52,14 @@ func (service *MockTodoListService) Init() {
 	service.TodoListCount = len(service.TodoLists)
 }
 
-func (service *MockTodoListService) GetById(id string) *models.TodoListGetResponseModel {
+func (service *MockTodoListService) GetNonDeletedById(id string) *models.TodoListGetResponseModel {
 	claims := common.GetUserClaims(service.ServiceManager.Context)
 	for _, todoList := range service.TodoLists {
 		if todoList.Id == id {
+			if todoList.IsDeleted() {
+				break
+			}
+
 			if todoList.UserId != claims.Subject && !claims.IsAdmin() {
 				return &models.TodoListGetResponseModel{
 					StatusModel: models.StatusForbidden(),
@@ -87,18 +91,14 @@ func (service *MockTodoListService) GetAllNonDeleted() *models.TodoListGetAllRes
 	}
 
 	return service.getAll(func(model *models.TodoListModel) bool {
-		if model.IsDeleted() {
-			return false
-		}
-
-		return true
+		return !model.IsDeleted()
 	})
 }
 
 func (service *MockTodoListService) GetAllNonDeletedByUserId(userId string) *models.TodoListGetAllResponseModel {
-	authUserId := common.GetAuthUserId(service.ServiceManager.Context)
+	claims := common.GetUserClaims(service.ServiceManager.Context)
 
-	if userId != authUserId {
+	if userId != claims.Subject && !claims.IsAdmin() {
 		return &models.TodoListGetAllResponseModel{
 			StatusModel: models.StatusForbidden(),
 			Message:     "You do not have access",
@@ -131,8 +131,8 @@ func (service *MockTodoListService) AddWithUserIdAndName(userId string, name str
 	id := strconv.Itoa(service.TodoListCount)
 	service.TodoLists = append(service.TodoLists, models.TodoListModel{
 		Id:                id,
-		UserId:            userId,
-		Name:              string([]byte(name)), // to fix fiber.Ctx.FormValue bug
+		UserId:            string([]byte(userId)), // to fix fiber.Ctx.FormValue bug
+		Name:              string([]byte(name)),   // to fix fiber.Ctx.FormValue bug
 		CreatedAt:         time.Now(),
 		ModifiedAt:        time.Now(),
 		DeletedAt:         nil,
@@ -153,6 +153,10 @@ func (service *MockTodoListService) UpdateNameById(id string, name string) *mode
 	authUserId := common.GetAuthUserId(service.ServiceManager.Context)
 	for i, todoList := range service.TodoLists {
 		if todoList.Id == id {
+			if todoList.IsDeleted() {
+				break
+			}
+
 			if todoList.UserId != authUserId {
 				return &models.EmptyResponseModel{
 					StatusModel: models.StatusForbidden(),
@@ -178,7 +182,11 @@ func (service *MockTodoListService) UpdateNameById(id string, name string) *mode
 func (service *MockTodoListService) DeleteById(id string) *models.EmptyResponseModel {
 	authUserId := common.GetAuthUserId(service.ServiceManager.Context)
 	for i, todoList := range service.TodoLists {
-		if todoList.Id == id && todoList.DeletedAt == nil {
+		if todoList.Id == id {
+			if todoList.IsDeleted() {
+				break
+			}
+
 			if todoList.UserId != authUserId {
 				return &models.EmptyResponseModel{
 					StatusModel: models.StatusForbidden(),

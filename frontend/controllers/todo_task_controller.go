@@ -40,14 +40,19 @@ func (controller *TodoTaskController) TodoTaskControllerPatch(context *fiber.Ctx
 		return common.SendStatusBadRequest(context)
 	}
 
+	redirectId := context.FormValue("redirect_id")
+	if redirectId == "" {
+		return common.SendStatusBadRequest(context)
+	}
+
 	action := context.FormValue("action")
 
 	if action == "toggle" {
-		return controller.sendPatchToggle(context, id)
+		return controller.sendPatchToggle(context, id, redirectId)
 	}
 
 	if action == "edit" {
-		return controller.sendPatchEdit(context, id)
+		return controller.sendPatchEdit(context, id, redirectId)
 	}
 
 	return common.SendStatusBadRequest(context)
@@ -75,12 +80,7 @@ func (controller *TodoTaskController) TodoTaskControllerDelete(context *fiber.Ct
 	return common.RedirectToTodoListPageById(context, redirectId)
 }
 
-func (controller *TodoTaskController) sendPatchToggle(context *fiber.Ctx, id string) error {
-	redirectId := context.Query("redirect_id")
-	if redirectId == "" {
-		return common.SendStatusBadRequest(context)
-	}
-
+func (controller *TodoTaskController) sendPatchToggle(context *fiber.Ctx, id string, redirectId string) error {
 	response := controller.ServiceManager.TodoTaskService.ToggleIsCompletedById(id)
 
 	if response.IsNotSuccess() {
@@ -90,14 +90,9 @@ func (controller *TodoTaskController) sendPatchToggle(context *fiber.Ctx, id str
 	return common.RedirectToTodoListPageById(context, redirectId)
 }
 
-func (controller *TodoTaskController) sendPatchEdit(context *fiber.Ctx, id string) error {
+func (controller *TodoTaskController) sendPatchEdit(context *fiber.Ctx, id string, redirectId string) error {
 	content := context.FormValue("content")
 	if content == "" {
-		return common.SendStatusBadRequest(context)
-	}
-
-	redirectId := context.Query("redirect_id")
-	if redirectId == "" {
 		return common.SendStatusBadRequest(context)
 	}
 
