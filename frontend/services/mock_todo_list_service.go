@@ -112,6 +112,24 @@ func (service *MockTodoListService) AddWithUserIdAndName(userId string, name str
 	}
 }
 
+func (service *MockTodoListService) UpdateNameById(id string, name string) *models.EmptyResponseModel {
+	for i, todoList := range service.TodoLists {
+		if todoList.Id == id {
+			service.TodoLists[i].Name = string([]byte(name)) // to fix fiber.Ctx.FormValue bug
+			service.TodoLists[i].ModifiedAt = time.Now()
+			return &models.EmptyResponseModel{
+				Status:  "success",
+				Message: "todo list name updated",
+			}
+		}
+	}
+
+	return &models.EmptyResponseModel{
+		Status:  "not_found",
+		Message: "todo list not found",
+	}
+}
+
 func (service *MockTodoListService) DeleteById(id string) *models.EmptyResponseModel {
 	for i, todoList := range service.TodoLists {
 		if todoList.Id == id && todoList.DeletedAt == nil {

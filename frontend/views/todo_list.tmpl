@@ -26,12 +26,27 @@
     .title {
       font-size: 2rem;
       font-weight: bold;
-      margin-bottom: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      color: #1e293b;
+    }
+
+    .disabled {
+      cursor: not-allowed;
+    }
+
+    .title-input {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 1.5rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
     }
 
     .input-row {
       display: flex;
       gap: 0.5rem;
+      margin-top: 1rem;
       margin-bottom: 1.5rem;
     }
 
@@ -235,7 +250,19 @@
 </head>
 <body>
   <div class="container">
-    <div class="title">{{.Name}}</div>
+    {{if .IsEdittingListName}}
+      <form method="POST" action="todo-list/patch?redirect_id={{.TodoListId}}">
+        <input name="id" value="{{.TodoListId}}" hidden>
+        <input class="title-input" name="name" type="text" placeholder="Enter name here" value="{{.Name}}" required autofocus onfocus="this.select()">
+        <button type="submit" hidden></button>
+      </form>
+    {{else}}
+      {{if .AllowEditting}}
+        <a class="title" href="/todo-list?id={{.TodoListId}}&edit_name=1">{{.Name}}</a>
+        {{else}}
+        <div class="title disabled">{{.Name}}</div>
+      {{end}}
+    {{end}}
 
     {{if .AllowEditting}}
     <form method="POST" action="todo-task">

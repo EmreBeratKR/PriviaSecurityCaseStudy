@@ -32,6 +32,7 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 
 	allowEditting := userId == common.GetAuthUserId(context)
 	editTodoTaskId := context.Query("edit_todo_task_id")
+	isEdittingListName := context.Query("edit_name") != ""
 	isEdittingTodoTask := editTodoTaskId != ""
 
 	for i, _ := range todoTasks {
@@ -48,6 +49,7 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 			"IsNotEdittingTodoTask": !isEdittingTodoTask,
 			"IsEdittingTodoTask":    isEdittingTodoTask,
 			"AllowEditting":         allowEditting,
+			"IsEdittingListName":    isEdittingListName,
 		})
 	}
 
@@ -67,6 +69,7 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 		"IsNotEdittingTodoTask": !isEdittingTodoTask,
 		"EditTaskContent":       todoTask.Content,
 		"AllowEditting":         allowEditting,
+		"IsEdittingListName":    isEdittingListName,
 	})
 }
 
@@ -86,6 +89,24 @@ func (controller *TodoListController) TodoListControllerDelete(context *fiber.Ct
 	}
 
 	return common.SendStatusInternalServerError(context)
+}
+
+func (controller *TodoListController) TodoListControllerPatch(context *fiber.Ctx) error {
+	id := context.FormValue("id")
+
+	if id == "" {
+		return common.SendStatusBadRequest(context)
+	}
+
+	name := context.FormValue("name")
+
+	if name == "" {
+		return common.SendStatusBadRequest(context)
+	}
+
+	controller.ServiceManager.TodoListService.UpdateNameById(id, name)
+
+	return common.RedirectToTodoListPageById(context, id)
 }
 
 func (controller *TodoListController) getTodoListByQueryParams(context *fiber.Ctx) *models.TodoListModel {
