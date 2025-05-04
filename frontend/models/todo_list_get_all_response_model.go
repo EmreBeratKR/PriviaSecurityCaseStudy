@@ -1,11 +1,17 @@
 package models
 
 type TodoListGetAllResponseModel struct {
-	Status    string          `json:"status"`
+	StatusModel
 	Message   string          `json:"message"`
 	TodoLists []TodoListModel `json:"todo_lists"`
 }
 
-func (response *TodoListGetAllResponseModel) IsSuccess() bool {
-	return response.Status == "success"
+func (model *TodoListGetAllResponseModel) Filtered(filter func(*TodoListModel) bool) []TodoListModel {
+	var filtered = make([]TodoListModel, 0)
+	for _, todoList := range model.TodoLists {
+		if filter(&todoList) {
+			filtered = append(filtered, todoList)
+		}
+	}
+	return filtered
 }

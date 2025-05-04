@@ -64,30 +64,28 @@ func (service *MockTodoListService) GetById(id string) *models.TodoListGetRespon
 	}
 }
 
-func (service *MockTodoListService) GetAllNonDeletedByUserId(userId string) *models.TodoListGetAllResponseModel {
-	var filtered = make([]models.TodoListModel, 0)
-	for _, todo := range service.TodoLists {
-		if todo.UserId == userId && !todo.IsDeleted() {
-			filtered = append(filtered, todo)
+func (service *MockTodoListService) GetAllNonDeleted() *models.TodoListGetAllResponseModel {
+	return service.getAll(func(model *models.TodoListModel) bool {
+		if model.IsDeleted() {
+			return false
 		}
-	}
-	return &models.TodoListGetAllResponseModel{
-		Status:    "success",
-		TodoLists: filtered,
-	}
+
+		return true
+	})
 }
 
-func (service *MockTodoListService) GetAllNonDeletedWithoutUserId(userId string) *models.TodoListGetAllResponseModel {
-	var filtered = make([]models.TodoListModel, 0)
-	for _, todo := range service.TodoLists {
-		if todo.UserId != userId && !todo.IsDeleted() {
-			filtered = append(filtered, todo)
+func (service *MockTodoListService) GetAllNonDeletedByUserId(userId string) *models.TodoListGetAllResponseModel {
+	return service.getAll(func(model *models.TodoListModel) bool {
+		if model.IsDeleted() {
+			return false
 		}
-	}
-	return &models.TodoListGetAllResponseModel{
-		Status:    "success",
-		TodoLists: filtered,
-	}
+
+		if model.UserId != userId {
+			return false
+		}
+
+		return true
+	})
 }
 
 func (service *MockTodoListService) AddWithUserIdAndName(userId string, name string) *models.EmptyResponseModel {
@@ -145,5 +143,19 @@ func (service *MockTodoListService) DeleteById(id string) *models.EmptyResponseM
 	return &models.EmptyResponseModel{
 		Status:  "not_found",
 		Message: "todo list not found or already deleted",
+	}
+}
+
+func (service *MockTodoListService) getAll(filter func(*models.TodoListModel) bool) *models.TodoListGetAllResponseModel {
+	var filtered = make([]models.TodoListModel, 0)
+	for _, todoList := range service.TodoLists {
+		if filter(&todoList) {
+			filtered = append(filtered, todoList)
+		}
+	}
+	return &models.TodoListGetAllResponseModel{
+		StatusModel: models.StatusSuccess(),
+		Message:     "All matched todo tasks retrivied",
+		TodoLists:   filtered,
 	}
 }
