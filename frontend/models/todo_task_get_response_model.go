@@ -1,11 +1,7 @@
 package models
 
 type TodoTaskGetResponseModel struct {
-	Status   string        `json:"status"`
+	StatusModel
 	Message  string        `json:"message"`
 	TodoTask TodoTaskModel `json:"todo_task"`
-}
-
-func (response *TodoTaskGetResponseModel) IsSuccess() bool {
-	return response.Status == "success"
 }

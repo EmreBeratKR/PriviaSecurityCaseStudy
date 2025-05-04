@@ -13,10 +13,14 @@ type LoginController struct {
 }
 
 func (controller *LoginController) LoginControllerGet(context *fiber.Ctx) error {
+	controller.ServiceManager.SetContext(context)
+
 	return context.Render("login", fiber.Map{})
 }
 
 func (controller *LoginController) LoginControllerPost(context *fiber.Ctx) error {
+	controller.ServiceManager.SetContext(context)
+
 	loginRequest, parseSuccess := controller.tryParseLoginRequest(context)
 
 	if !parseSuccess {
@@ -25,7 +29,7 @@ func (controller *LoginController) LoginControllerPost(context *fiber.Ctx) error
 
 	response := controller.sendLoginRequest(loginRequest)
 
-	if !response.IsSuccess() {
+	if response.IsNotSuccess() {
 		return context.Render("login", fiber.Map{
 			"Error": response.Message,
 		})

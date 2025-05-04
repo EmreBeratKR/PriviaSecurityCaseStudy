@@ -251,9 +251,9 @@
 <body>
   <div class="container">
     {{if .IsEdittingListName}}
-      <form method="POST" action="todo-list/patch?redirect_id={{.TodoListId}}">
+      <form id="edit-list-name-form" method="POST" action="todo-list/patch?redirect_id={{.TodoListId}}">
         <input name="id" value="{{.TodoListId}}" hidden>
-        <input class="title-input" name="name" type="text" placeholder="Enter name here" value="{{.Name}}" required autofocus onfocus="this.select()">
+        <input class="title-input" name="name" type="text" placeholder="Enter name here" value="{{.Name}}" required autofocus onfocus="this.select()" onblur="document.getElementById('edit-list-name-form').submit()">
         <button type="submit" hidden></button>
       </form>
     {{else}}
@@ -295,17 +295,17 @@
   {{if .IsEdittingTodoTask}}
     <div class="modal-overlay">
       <div class="modal">
-        <form method="GET" action="/todo-list?id={{.TodoListId}}">
+        <form method="GET" action="/todo-list">
           <input type="hidden" name="id" value="{{.TodoListId}}">
           <button class="modal-header">
             <span class="close-btn">&times;</span>
           </button>
         </form>
         <div class="modal-footer">
-          <form method="POST" action="/todo-task/edit?redirect_id={{.TodoListId}}">
-            <input type="hidden" name="id" value="{{.TodoListId}}">
+          <form method="POST" action="/todo-task/patch?redirect_id={{.TodoListId}}">
+            <input name="id" value="{{.EditTodoTaskId}}" hidden>
+            <input name="action" value="edit" hidden>
             <div class="modal-body">
-              <input name="id" value="{{.EditTodoTaskId}}" hidden>
               <input name="content" type="text" placeholder="Edit task here" required autofocus value="{{.EditTaskContent}}" onfocus="this.select()">
             </div>
             <button type="submit">Save</button>

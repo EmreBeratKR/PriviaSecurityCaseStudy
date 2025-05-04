@@ -7,6 +7,7 @@ import (
 )
 
 type MockTodoTaskService struct {
+	ServiceManager  *ServiceManager
 	TodoListService *MockTodoListService
 	TodoTasks       []models.TodoTaskModel
 	TodoTaskCount   int
@@ -102,21 +103,37 @@ func (service *MockTodoTaskService) Init() {
 func (service *MockTodoTaskService) GetById(id string) *models.TodoTaskGetResponseModel {
 	for _, task := range service.TodoTasks {
 		if task.Id == id {
+			todoListResponse := service.TodoListService.GetById(task.TodoListId)
+
+			if todoListResponse.IsNotSuccess() {
+				return &models.TodoTaskGetResponseModel{
+					StatusModel: todoListResponse.StatusModel,
+				}
+			}
+
 			return &models.TodoTaskGetResponseModel{
-				Status:   "success",
-				Message:  "Task retrieved successfully",
-				TodoTask: task,
+				StatusModel: models.StatusSuccess(),
+				Message:     "Task retrieved successfully",
+				TodoTask:    task,
 			}
 		}
 	}
 
 	return &models.TodoTaskGetResponseModel{
-		Status:  "not_found",
-		Message: "todo task not found",
+		StatusModel: models.StatusNotFound(),
+		Message:     "todo task not found",
 	}
 }
 
 func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(todoListId string) *models.TodoTaskGetAllResponseModel {
+	todoListResponse := service.TodoListService.GetById(todoListId)
+
+	if todoListResponse.IsNotSuccess() {
+		return &models.TodoTaskGetAllResponseModel{
+			StatusModel: todoListResponse.StatusModel,
+		}
+	}
+
 	filtered := make([]models.TodoTaskModel, 0)
 
 	for _, task := range service.TodoTasks {
@@ -126,13 +143,20 @@ func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(todoListId stri
 	}
 
 	return &models.TodoTaskGetAllResponseModel{
-		Status:    "success",
-		Message:   "Tasks retrieved successfully",
-		TodoTasks: filtered,
+		StatusModel: models.StatusSuccess(),
+		Message:     "Tasks retrieved successfully",
+		TodoTasks:   filtered,
 	}
 }
 
 func (service *MockTodoTaskService) AddWithListIdAndContent(todoListId string, content string) *models.EmptyResponseModel {
+	todoListResponse := service.TodoListService.GetById(todoListId)
+	if todoListResponse.IsNotSuccess() {
+		return &models.EmptyResponseModel{
+			StatusModel: todoListResponse.StatusModel,
+		}
+	}
+
 	id := strconv.Itoa(service.TodoTaskCount)
 	service.TodoTasks = append(service.TodoTasks, models.TodoTaskModel{
 		Id:          id,
@@ -156,14 +180,21 @@ func (service *MockTodoTaskService) AddWithListIdAndContent(todoListId string, c
 	}
 
 	return &models.EmptyResponseModel{
-		Status:  "success",
-		Message: "todo task added",
+		StatusModel: models.StatusSuccess(),
+		Message:     "todo task added",
 	}
 }
 
 func (service *MockTodoTaskService) DeleteById(id string) *models.EmptyResponseModel {
-	for i, todoList := range service.TodoTasks {
-		if todoList.Id == id && todoList.DeletedAt == nil {
+	for i, todoTask := range service.TodoTasks {
+		if todoTask.Id == id && todoTask.DeletedAt == nil {
+			todoListResponse := service.TodoListService.GetById(todoTask.TodoListId)
+			if todoListResponse.IsNotSuccess() {
+				return &models.EmptyResponseModel{
+					StatusModel: todoListResponse.StatusModel,
+				}
+			}
+
 			now := time.Now()
 			service.TodoTasks[i].DeletedAt = &now
 
@@ -182,21 +213,28 @@ func (service *MockTodoTaskService) DeleteById(id string) *models.EmptyResponseM
 			}
 
 			return &models.EmptyResponseModel{
-				Status:  "success",
-				Message: "todo task deleted",
+				StatusModel: models.StatusSuccess(),
+				Message:     "todo task deleted",
 			}
 		}
 	}
 
 	return &models.EmptyResponseModel{
-		Status:  "not_found",
-		Message: "todo task not found or already deleted",
+		StatusModel: models.StatusNotFound(),
+		Message:     "todo task not found or already deleted",
 	}
 }
 
 func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.EmptyResponseModel {
-	for i, todoList := range service.TodoTasks {
-		if todoList.Id == id && todoList.DeletedAt == nil {
+	for i, todoTask := range service.TodoTasks {
+		if todoTask.Id == id && todoTask.DeletedAt == nil {
+			todoListResponse := service.TodoListService.GetById(todoTask.TodoListId)
+			if todoListResponse.IsNotSuccess() {
+				return &models.EmptyResponseModel{
+					StatusModel: todoListResponse.StatusModel,
+				}
+			}
+
 			service.TodoTasks[i].ToggleIsCompleted()
 			service.TodoTasks[i].UpdateModifiedAt()
 			isCompleted := service.TodoTasks[i].IsCompleted
@@ -215,32 +253,38 @@ func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.Emp
 			}
 
 			return &models.EmptyResponseModel{
-				Status:  "success",
-				Message: "todo task deleted",
+				StatusModel: models.StatusSuccess(),
+				Message:     "todo task deleted",
 			}
 		}
 	}
 
 	return &models.EmptyResponseModel{
-		Status:  "not_found",
-		Message: "todo task not found or already deleted",
+		StatusModel: models.StatusNotFound(),
+		Message:     "todo task not found or already deleted",
 	}
 }
 
 func (service *MockTodoTaskService) UpdateContentById(id string, content string) *models.EmptyResponseModel {
-	for i, todoList := range service.TodoTasks {
-		if todoList.Id == id {
+	for i, todoTask := range service.TodoTasks {
+		if todoTask.Id == id {
+			todoListResponse := service.TodoListService.GetById(todoTask.TodoListId)
+			if todoListResponse.IsNotSuccess() {
+				return &models.EmptyResponseModel{
+					StatusModel: todoListResponse.StatusModel,
+				}
+			}
 			service.TodoTasks[i].Content = string([]byte(content)) // to fix fiber.Ctx.BodyParser bug
 
 			return &models.EmptyResponseModel{
-				Status:  "success",
-				Message: "todo task content updated",
+				StatusModel: models.StatusSuccess(),
+				Message:     "todo task content updated",
 			}
 		}
 	}
 
 	return &models.EmptyResponseModel{
-		Status:  "not_found",
-		Message: "todo task not found",
+		StatusModel: models.StatusNotFound(),
+		Message:     "todo task not found",
 	}
 }

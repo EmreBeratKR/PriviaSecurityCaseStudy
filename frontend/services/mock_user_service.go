@@ -11,8 +11,9 @@ import (
 )
 
 type MockUserService struct {
-	Users     []models.UserModel
-	UserCount int
+	ServiceManager *ServiceManager
+	Users          []models.UserModel
+	UserCount      int
 }
 
 func (service *MockUserService) Init() {
@@ -30,8 +31,8 @@ func (service *MockUserService) Login(request *models.LoginRequestModel) *models
 		if common.ComparePasswordAndHash(request.Password, user.Hash) {
 			expireAt := calculateJWTExpireTime()
 			return &models.LoginResponseModel{
-				Status:  "success",
-				Message: "Welcome back, " + user.Username,
+				StatusModel: models.StatusSuccess(),
+				Message:     "Welcome back, " + user.Username,
 				Token: createJWT(expireAt, models.UserClaims{
 					Username: request.Username,
 					Role:     user.Role,
@@ -42,8 +43,8 @@ func (service *MockUserService) Login(request *models.LoginRequestModel) *models
 	}
 
 	return &models.LoginResponseModel{
-		Status:  "error",
-		Message: "Wrong credentials",
+		StatusModel: models.StatusNotFound(),
+		Message:     "Wrong credentials",
 	}
 }
 

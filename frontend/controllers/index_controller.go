@@ -13,6 +13,8 @@ type IndexController struct {
 }
 
 func (controller *IndexController) IndexControllerGet(context *fiber.Ctx) error {
+	controller.ServiceManager.SetContext(context)
+
 	isAdmin := common.IsAuthenticatedAsAdmin(context)
 
 	if isAdmin {

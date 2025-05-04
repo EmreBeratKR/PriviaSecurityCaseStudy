@@ -32,11 +32,11 @@ func Logout(context *fiber.Ctx) {
 }
 
 func IsAuthenticated(context *fiber.Ctx) bool {
-	return getUserClaims(context) != nil
+	return GetUserClaims(context) != nil
 }
 
 func IsAuthenticatedAsAdmin(context *fiber.Ctx) bool {
-	claims := getUserClaims(context)
+	claims := GetUserClaims(context)
 	if claims == nil {
 		return false
 	}
@@ -45,7 +45,7 @@ func IsAuthenticatedAsAdmin(context *fiber.Ctx) bool {
 }
 
 func IsAuthorizedForUserId(context *fiber.Ctx, userId string) bool {
-	claims := getUserClaims(context)
+	claims := GetUserClaims(context)
 	if claims == nil {
 		return false
 	}
@@ -58,7 +58,7 @@ func IsAuthorizedForUserId(context *fiber.Ctx, userId string) bool {
 }
 
 func GetAuthUserId(context *fiber.Ctx) string {
-	claims := getUserClaims(context)
+	claims := GetUserClaims(context)
 	if claims == nil {
 		return ""
 	}
@@ -67,7 +67,7 @@ func GetAuthUserId(context *fiber.Ctx) string {
 }
 
 func GetAuthUsername(context *fiber.Ctx) string {
-	claims := getUserClaims(context)
+	claims := GetUserClaims(context)
 	if claims == nil {
 		return ""
 	}
@@ -75,11 +75,7 @@ func GetAuthUsername(context *fiber.Ctx) string {
 	return claims.Username
 }
 
-func getAuthCookieName() string {
-	return "auth_token"
-}
-
-func getUserClaims(context *fiber.Ctx) *models.UserClaims {
+func GetUserClaims(context *fiber.Ctx) *models.UserClaims {
 	tokenStr := context.Cookies(getAuthCookieName())
 	if tokenStr == "" {
 		return nil
@@ -99,4 +95,8 @@ func getUserClaims(context *fiber.Ctx) *models.UserClaims {
 	}
 
 	return claims
+}
+
+func getAuthCookieName() string {
+	return "auth_token"
 }
