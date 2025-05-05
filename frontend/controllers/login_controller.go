@@ -15,7 +15,9 @@ type LoginController struct {
 func (controller *LoginController) LoginControllerGet(context *fiber.Ctx) error {
 	controller.ServiceManager.SetContext(context)
 
-	return context.Render("login", fiber.Map{})
+	return context.Render("login", fiber.Map{
+		"HideUserInfo": true,
+	})
 }
 
 func (controller *LoginController) LoginControllerPost(context *fiber.Ctx) error {
@@ -35,7 +37,9 @@ func (controller *LoginController) LoginControllerPost(context *fiber.Ctx) error
 
 	if response.IsNotSuccess() {
 		return context.Render("login", fiber.Map{
-			"Error": response.Message,
+			"HideUserInfo": true,
+			"Username":     loginRequest.Username,
+			"Error":        response.Message,
 		})
 	}
 
