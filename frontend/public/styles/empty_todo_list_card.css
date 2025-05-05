@@ -1,9 +1,10 @@
 .empty-todo-card {
+    margin: 0 auto;
+    width: 95%;
     position: relative;
     background-color: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    width: 250px;
     padding: 1rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
