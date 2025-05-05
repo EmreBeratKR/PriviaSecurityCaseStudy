@@ -14,8 +14,8 @@
         {{if .IsCompleted}}✓{{end}}
       </button>
     {{end}}
-    <div class="task-desc">{{.Content}}</div>
   </div>
+  <div class="task-desc">{{.Content}}</div>
   {{if .AllowEditting}}
     <div class="task-actions">
       <form method="GET" action="/todo-list">

@@ -12,6 +12,7 @@ type TodoListModel struct {
 	CompletionPercent int        `json:"completion_percent"`
 	CompletedTasks    int        `json:"completed_tasks"`
 	TotalTasks        int        `json:"total_tasks"`
+	ShowDeleteButton  bool       // for template parameter
 }
 
 func (model *TodoListModel) UpdateModifiedAt() {

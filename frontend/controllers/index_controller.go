@@ -8,6 +8,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+var pageTitle = "Emrello"
+
 type IndexController struct {
 	ServiceManager *services.ServiceManager
 }
@@ -40,13 +42,24 @@ func (controller *IndexController) sendAdminPage(context *fiber.Ctx) error {
 		return model.UserId != userId
 	})
 
+	for i := range ownedTodoLists {
+		ownedTodoLists[i].ShowDeleteButton = true
+	}
+
+	for i := range notOwnedTodoLists {
+		notOwnedTodoLists[i].ShowDeleteButton = false
+	}
+
 	return context.Render("index", fiber.Map{
-		"UserId":            userId,
-		"Username":          common.GetAuthUsername(context),
-		"TodoLists":         ownedTodoLists,
-		"OthersTodoLists":   notOwnedTodoLists,
-		"IsAdmin":           true,
-		"IsCreatingNewList": controller.isCreatingNewList(context),
+		"PageTitle":             pageTitle,
+		"UserId":                userId,
+		"Username":              common.GetAuthUsername(context),
+		"TodoLists":             ownedTodoLists,
+		"IsTodoListsEmpty":      len(ownedTodoLists) <= 0,
+		"OthersTodoLists":       notOwnedTodoLists,
+		"IsOtherTodoListsEmpty": len(notOwnedTodoLists) <= 0,
+		"IsAdmin":               true,
+		"IsCreatingNewList":     controller.isCreatingNewList(context),
 	})
 }
 
@@ -58,10 +71,15 @@ func (controller *IndexController) sendUserPage(context *fiber.Ctx) error {
 		return common.SendErrorStatus(todoListsResponse.Status, context)
 	}
 
+	for i := range todoListsResponse.TodoLists {
+		todoListsResponse.TodoLists[i].ShowDeleteButton = true
+	}
+
 	return context.Render("index", fiber.Map{
 		"UserId":            userId,
 		"Username":          common.GetAuthUsername(context),
 		"TodoLists":         todoListsResponse.TodoLists,
+		"IsTodoListsEmpty":  len(todoListsResponse.TodoLists) <= 0,
 		"IsAdmin":           false,
 		"IsCreatingNewList": controller.isCreatingNewList(context),
 	})

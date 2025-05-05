@@ -44,10 +44,13 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 	}
 
 	return context.Render("todo_list", fiber.Map{
+		"Username":              common.GetAuthUsername(context),
+		"PageTitle":             todoListsResponse.TodoList.Name + " - Todo List",
 		"TodoListId":            todoListsResponse.TodoList.Id,
 		"Name":                  todoListsResponse.TodoList.Name,
 		"CompletionPercent":     todoListsResponse.TodoList.CompletionPercent,
 		"TodoTasks":             todoTasksResponse.TodoTasks,
+		"IsTodoTasksEmpty":      len(todoTasksResponse.TodoTasks) <= 0,
 		"EditTodoTaskId":        editTodoTaskId,
 		"IsEdittingTodoTask":    isEdittingTodoTask,
 		"IsNotEdittingTodoTask": !isEdittingTodoTask,
@@ -67,6 +70,10 @@ func (controller *TodoListController) TodoListControllerPost(context *fiber.Ctx)
 
 	name := context.FormValue("name")
 	if name == "" {
+		return common.SendStatusBadRequest(context)
+	}
+
+	if !controller.isValidTodoListName(name) {
 		return common.SendStatusBadRequest(context)
 	}
 
@@ -107,10 +114,18 @@ func (controller *TodoListController) TodoListControllerPatch(context *fiber.Ctx
 		return common.SendStatusBadRequest(context)
 	}
 
+	if !controller.isValidTodoListName(name) {
+		return common.SendStatusBadRequest(context)
+	}
+
 	response := controller.ServiceManager.TodoListService.UpdateNameById(id, name)
 	if response.IsNotSuccess() {
 		return common.SendErrorStatus(response.Status, context)
 	}
 
 	return common.RedirectToTodoListPageById(context, id)
+}
+
+func (controller *TodoListController) isValidTodoListName(name string) bool {
+	return len(name) <= 20
 }
