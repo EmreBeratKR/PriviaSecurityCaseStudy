@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"todo-frontend-web-app/common"
+	"privia-sec-case-study/frontend/common"
 
 	"github.com/gofiber/fiber/v2"
 )

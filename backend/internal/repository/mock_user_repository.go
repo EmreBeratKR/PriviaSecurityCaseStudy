@@ -1,6 +1,6 @@
 package repository
 
-import "todo-backend-rest-api/internal/domain"
+import "privia-sec-case-study/backend/internal/domain"
 
 type MockUserRepository struct {
 	users     []domain.User

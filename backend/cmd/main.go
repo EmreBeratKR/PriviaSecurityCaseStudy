@@ -1,12 +1,18 @@
 package main
 
 import (
-	"todo-backend-rest-api/internal/handler"
-	"todo-backend-rest-api/internal/repository"
-	"todo-backend-rest-api/internal/usercase"
+	"os"
+	"privia-sec-case-study/backend/internal/handler"
+	"privia-sec-case-study/backend/internal/repository"
+	"privia-sec-case-study/backend/internal/usercase"
+	"privia-sec-case-study/shared"
 
 	"github.com/gofiber/fiber/v2"
 )
+
+func init() {
+	shared.InitDotEnv()
+}
 
 func main() {
 	app := fiber.New()
@@ -17,5 +23,6 @@ func main() {
 
 	app.Get("/users/login", userHandler.LoginUser)
 
-	app.Listen(":3000")
+	port := os.Getenv("BACKEND_PORT")
+	app.Listen(":" + port)
 }

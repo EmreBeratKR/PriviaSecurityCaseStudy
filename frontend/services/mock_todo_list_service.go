@@ -1,10 +1,10 @@
 package services
 
 import (
+	"privia-sec-case-study/frontend/common"
+	"privia-sec-case-study/frontend/models"
 	"strconv"
 	"time"
-	"todo-frontend-web-app/common"
-	"todo-frontend-web-app/models"
 )
 
 type MockTodoListService struct {

@@ -1,6 +1,6 @@
 package interfaces
 
-import "todo-frontend-web-app/models"
+import "privia-sec-case-study/frontend/models"
 
 type TodoListService interface {
 	GetNonDeletedById(id string) *models.TodoListGetResponseModel

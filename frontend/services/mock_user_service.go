@@ -2,10 +2,10 @@ package services
 
 import (
 	"os"
+	"privia-sec-case-study/frontend/models"
+	"privia-sec-case-study/shared"
 	"strconv"
 	"time"
-	"todo-frontend-web-app/common"
-	"todo-frontend-web-app/models"
 
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -28,7 +28,7 @@ func (service *MockUserService) Login(request *models.LoginRequestModel) *models
 			continue
 		}
 
-		if common.ComparePasswordAndHash(request.Password, user.Hash) {
+		if shared.ComparePasswordAndHash(request.Password, user.Hash) {
 			expireAt := calculateJWTExpireTime()
 			return &models.LoginResponseModel{
 				StatusModel: models.StatusSuccess(),
@@ -53,7 +53,7 @@ func (service *MockUserService) createUser(username string, password string, rol
 	service.Users = append(service.Users, models.UserModel{
 		Id:       id,
 		Username: username,
-		Hash:     common.GeneratePasswordHash(password),
+		Hash:     shared.GeneratePasswordHash(password),
 		Role:     role,
 	})
 	service.UserCount += 1

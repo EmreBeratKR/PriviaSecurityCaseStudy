@@ -1,7 +1,7 @@
 package common
 
 import (
-	"todo-frontend-web-app/models"
+	"privia-sec-case-study/frontend/models"
 
 	"github.com/gofiber/fiber/v2"
 )

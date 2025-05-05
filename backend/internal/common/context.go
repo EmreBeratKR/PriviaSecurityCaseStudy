@@ -1,7 +1,7 @@
 package common
 
 import (
-	"todo-backend-rest-api/internal/domain"
+	"privia-sec-case-study/backend/internal/domain"
 
 	"github.com/gofiber/fiber/v2"
 )

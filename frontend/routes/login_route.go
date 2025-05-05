@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"todo-frontend-web-app/controllers"
-	"todo-frontend-web-app/services"
+	"privia-sec-case-study/frontend/controllers"
+	"privia-sec-case-study/frontend/services"
 
 	"github.com/gofiber/fiber/v2"
 )

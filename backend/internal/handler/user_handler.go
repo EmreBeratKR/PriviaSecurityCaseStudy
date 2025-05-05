@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"todo-backend-rest-api/internal/common"
-	"todo-backend-rest-api/internal/usercase"
+	"privia-sec-case-study/backend/internal/common"
+	"privia-sec-case-study/backend/internal/usercase"
 
 	"github.com/gofiber/fiber/v2"
 )

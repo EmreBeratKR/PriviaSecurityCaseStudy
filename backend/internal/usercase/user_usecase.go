@@ -1,6 +1,6 @@
 package usercase
 
-import "todo-backend-rest-api/internal/domain"
+import "privia-sec-case-study/backend/internal/domain"
 
 type UserUsecase struct {
 	repository domain.UserRepository
