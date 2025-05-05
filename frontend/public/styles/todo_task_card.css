@@ -57,7 +57,7 @@
 
 .task-desc-checked {
     text-decoration: line-through;
-    color: gray;
+    color: rgb(200, 200, 200);
 }
 
 .task-actions {
