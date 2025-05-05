@@ -55,6 +55,11 @@
     padding-right: 0.5rem;
 }
 
+.task-desc-checked {
+    text-decoration: line-through;
+    color: gray;
+}
+
 .task-actions {
     display: flex;
     gap: 0.5rem;
