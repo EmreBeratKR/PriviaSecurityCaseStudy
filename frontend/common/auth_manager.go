@@ -2,8 +2,9 @@ package common
 
 import (
 	"os"
+	"privia-sec-case-study/frontend/models"
+	"privia-sec-case-study/shared"
 	"time"
-	"todo-frontend-web-app/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
@@ -15,7 +16,7 @@ func Login(context *fiber.Ctx, response *models.LoginResponseModel) {
 		Value:    response.Token,
 		Expires:  response.ExpiresAt,
 		HTTPOnly: true,
-		Secure:   IsProductionEnvironment(),
+		Secure:   shared.IsProductionEnvironment(),
 		SameSite: "Lax",
 	})
 }
@@ -26,7 +27,7 @@ func Logout(context *fiber.Ctx) {
 		Value:    "",
 		Expires:  time.Now().Add(-1 * time.Hour),
 		HTTPOnly: true,
-		Secure:   IsProductionEnvironment(),
+		Secure:   shared.IsProductionEnvironment(),
 		SameSite: "Lax",
 	})
 }

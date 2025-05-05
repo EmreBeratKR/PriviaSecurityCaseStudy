@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"todo-frontend-web-app/common"
-	"todo-frontend-web-app/services"
+	"privia-sec-case-study/frontend/common"
+	"privia-sec-case-study/frontend/services"
 
 	"github.com/gofiber/fiber/v2"
 )

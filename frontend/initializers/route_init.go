@@ -1,8 +1,8 @@
 package initializers
 
 import (
-	"todo-frontend-web-app/routes"
-	"todo-frontend-web-app/services"
+	"privia-sec-case-study/frontend/routes"
+	"privia-sec-case-study/frontend/services"
 
 	"github.com/gofiber/fiber/v2"
 )

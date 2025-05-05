@@ -1,7 +1,7 @@
 package services
 
 import (
-	"todo-frontend-web-app/interfaces"
+	"privia-sec-case-study/frontend/interfaces"
 
 	"github.com/gofiber/fiber/v2"
 )
