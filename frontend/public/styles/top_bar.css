@@ -33,11 +33,18 @@
     background-color: #ef4444;
     color: white;
     border: none;
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 0.5rem;
     border-radius: 5px;
     cursor: pointer;
+    display: inline-flex; 
+    align-items: center; 
+    gap: 0.2rem;
 }
 
 .logout-button:hover {
     background-color: #dc2626;
+}
+
+.logout-button div {
+    font-size: 14px;
 }
