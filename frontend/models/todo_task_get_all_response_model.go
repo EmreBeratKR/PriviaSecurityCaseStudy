@@ -1,7 +1,7 @@
 package models
 
 type TodoTaskGetAllResponseModel struct {
-	Status    string          `json:"status"`
+	StatusModel
 	Message   string          `json:"message"`
 	TodoTasks []TodoTaskModel `json:"todo_tasks"`
 }

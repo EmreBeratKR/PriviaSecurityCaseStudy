@@ -8,65 +8,83 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+var pageTitle = "Emrello"
+
 type IndexController struct {
 	ServiceManager *services.ServiceManager
 }
 
 func (controller *IndexController) IndexControllerGet(context *fiber.Ctx) error {
-	todoLists := controller.getAllTodoListsForAuthenticatedUser(context)
-
-	if todoLists == nil {
-		return common.SendStatusInternalServerError(context)
-	}
+	controller.ServiceManager.SetContext(context)
 
 	isAdmin := common.IsAuthenticatedAsAdmin(context)
 
-	if !isAdmin {
-		return context.Render("index", fiber.Map{
-			"Username":  common.GetAuthUsername(context),
-			"TodoLists": todoLists,
-			"IsAdmin":   false,
-		})
+	if isAdmin {
+		return controller.sendAdminPage(context)
 	}
 
-	othersTodoLists := controller.getAllTodoListsForNonAuthenticatedUsers(context)
+	return controller.sendUserPage(context)
+}
 
-	if othersTodoLists == nil {
-		return common.SendStatusInternalServerError(context)
+func (controller *IndexController) sendAdminPage(context *fiber.Ctx) error {
+	todoListsResponse := controller.ServiceManager.TodoListService.GetAllNonDeleted()
+
+	if todoListsResponse.IsNotSuccess() {
+		return common.SendErrorStatus(todoListsResponse.Status, context)
+	}
+
+	userId := common.GetAuthUserId(context)
+	ownedTodoLists := todoListsResponse.Filtered(func(model *models.TodoListModel) bool {
+		return model.UserId == userId
+	})
+
+	notOwnedTodoLists := todoListsResponse.Filtered(func(model *models.TodoListModel) bool {
+		return model.UserId != userId
+	})
+
+	for i := range ownedTodoLists {
+		ownedTodoLists[i].ShowDeleteButton = true
+	}
+
+	for i := range notOwnedTodoLists {
+		notOwnedTodoLists[i].ShowDeleteButton = false
 	}
 
 	return context.Render("index", fiber.Map{
-		"Username":        common.GetAuthUsername(context),
-		"TodoLists":       todoLists,
-		"OthersTodoLists": othersTodoLists,
-		"IsAdmin":         true,
+		"PageTitle":             pageTitle,
+		"UserId":                userId,
+		"Username":              common.GetAuthUsername(context),
+		"TodoLists":             ownedTodoLists,
+		"IsTodoListsEmpty":      len(ownedTodoLists) <= 0,
+		"OthersTodoLists":       notOwnedTodoLists,
+		"IsOtherTodoListsEmpty": len(notOwnedTodoLists) <= 0,
+		"IsAdmin":               true,
+		"IsCreatingNewList":     controller.isCreatingNewList(context),
 	})
 }
 
-func (controller *IndexController) getAllTodoListsForAuthenticatedUser(context *fiber.Ctx) []models.TodoListModel {
+func (controller *IndexController) sendUserPage(context *fiber.Ctx) error {
 	userId := common.GetAuthUserId(context)
+	todoListsResponse := controller.ServiceManager.TodoListService.GetAllNonDeletedByUserId(userId)
 
-	if userId == "" {
-		return nil
+	if todoListsResponse.IsNotSuccess() {
+		return common.SendErrorStatus(todoListsResponse.Status, context)
 	}
 
-	response := controller.ServiceManager.TodoListService.GetAllNonDeletedByUserId(userId)
-
-	if !response.IsSuccess() {
-		return nil
+	for i := range todoListsResponse.TodoLists {
+		todoListsResponse.TodoLists[i].ShowDeleteButton = true
 	}
 
-	return response.TodoLists
+	return context.Render("index", fiber.Map{
+		"UserId":            userId,
+		"Username":          common.GetAuthUsername(context),
+		"TodoLists":         todoListsResponse.TodoLists,
+		"IsTodoListsEmpty":  len(todoListsResponse.TodoLists) <= 0,
+		"IsAdmin":           false,
+		"IsCreatingNewList": controller.isCreatingNewList(context),
+	})
 }
 
-func (controller *IndexController) getAllTodoListsForNonAuthenticatedUsers(context *fiber.Ctx) []models.TodoListModel {
-	userId := common.GetAuthUserId(context)
-
-	if userId == "" {
-		return nil
-	}
-
-	response := controller.ServiceManager.TodoListService.GetAllNonDeletedWithoutUserId(userId)
-
-	return response.TodoLists
+func (controller *IndexController) isCreatingNewList(context *fiber.Ctx) bool {
+	return context.Query("create") != ""
 }

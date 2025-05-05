@@ -12,6 +12,8 @@ type LogoutController struct {
 }
 
 func (controller *LogoutController) LogoutControllerPost(context *fiber.Ctx) error {
+	controller.ServiceManager.SetContext(context)
+
 	common.Logout(context)
 	return common.RedirectToLoginPage(context)
 }

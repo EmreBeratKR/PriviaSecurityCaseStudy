@@ -3,12 +3,14 @@ package services
 import (
 	"strconv"
 	"time"
+	"todo-frontend-web-app/common"
 	"todo-frontend-web-app/models"
 )
 
 type MockTodoListService struct {
-	TodoLists     []models.TodoListModel
-	TodoListCount int
+	ServiceManager *ServiceManager
+	TodoLists      []models.TodoListModel
+	TodoListCount  int
 }
 
 func (service *MockTodoListService) Init() {
@@ -50,52 +52,87 @@ func (service *MockTodoListService) Init() {
 	service.TodoListCount = len(service.TodoLists)
 }
 
-func (service *MockTodoListService) GetById(id string) *models.TodoListGetResponseModel {
+func (service *MockTodoListService) GetNonDeletedById(id string) *models.TodoListGetResponseModel {
+	claims := common.GetUserClaims(service.ServiceManager.Context)
 	for _, todoList := range service.TodoLists {
 		if todoList.Id == id {
+			if todoList.IsDeleted() {
+				break
+			}
+
+			if todoList.UserId != claims.Subject && !claims.IsAdmin() {
+				return &models.TodoListGetResponseModel{
+					StatusModel: models.StatusForbidden(),
+					Message:     "You do not have access",
+				}
+			}
+
 			return &models.TodoListGetResponseModel{
-				Status:   "success",
-				TodoList: todoList,
+				StatusModel: models.StatusSuccess(),
+				TodoList:    todoList,
+				Message:     "todo list found",
 			}
 		}
 	}
 	return &models.TodoListGetResponseModel{
-		Status: "not_found",
+		StatusModel: models.StatusNotFound(),
+		Message:     "todo list not found",
 	}
+}
+
+func (service *MockTodoListService) GetAllNonDeleted() *models.TodoListGetAllResponseModel {
+	isAdmin := common.IsAuthenticatedAsAdmin(service.ServiceManager.Context)
+
+	if !isAdmin {
+		return &models.TodoListGetAllResponseModel{
+			StatusModel: models.StatusForbidden(),
+			Message:     "You do not have access",
+		}
+	}
+
+	return service.getAll(func(model *models.TodoListModel) bool {
+		return !model.IsDeleted()
+	})
 }
 
 func (service *MockTodoListService) GetAllNonDeletedByUserId(userId string) *models.TodoListGetAllResponseModel {
-	var filtered = make([]models.TodoListModel, 0)
-	for _, todo := range service.TodoLists {
-		if todo.UserId == userId && !todo.IsDeleted() {
-			filtered = append(filtered, todo)
+	claims := common.GetUserClaims(service.ServiceManager.Context)
+
+	if userId != claims.Subject && !claims.IsAdmin() {
+		return &models.TodoListGetAllResponseModel{
+			StatusModel: models.StatusForbidden(),
+			Message:     "You do not have access",
 		}
 	}
-	return &models.TodoListGetAllResponseModel{
-		Status:    "success",
-		TodoLists: filtered,
-	}
+
+	return service.getAll(func(model *models.TodoListModel) bool {
+		if model.IsDeleted() {
+			return false
+		}
+
+		if model.UserId != userId {
+			return false
+		}
+
+		return true
+	})
 }
 
-func (service *MockTodoListService) GetAllNonDeletedWithoutUserId(userId string) *models.TodoListGetAllResponseModel {
-	var filtered = make([]models.TodoListModel, 0)
-	for _, todo := range service.TodoLists {
-		if todo.UserId != userId && !todo.IsDeleted() {
-			filtered = append(filtered, todo)
+func (service *MockTodoListService) AddWithUserIdAndName(userId string, name string) *models.TodoListGetResponseModel {
+	authUserId := common.GetAuthUserId(service.ServiceManager.Context)
+
+	if userId != authUserId {
+		return &models.TodoListGetResponseModel{
+			StatusModel: models.StatusForbidden(),
+			Message:     "You do not have access",
 		}
 	}
-	return &models.TodoListGetAllResponseModel{
-		Status:    "success",
-		TodoLists: filtered,
-	}
-}
 
-func (service *MockTodoListService) AddWithUserId(userId string) *models.EmptyResponseModel {
 	id := strconv.Itoa(service.TodoListCount)
 	service.TodoLists = append(service.TodoLists, models.TodoListModel{
 		Id:                id,
-		UserId:            userId,
-		Name:              "New Todo List #" + id,
+		UserId:            string([]byte(userId)), // to fix fiber.Ctx.FormValue bug
+		Name:              string([]byte(name)),   // to fix fiber.Ctx.FormValue bug
 		CreatedAt:         time.Now(),
 		ModifiedAt:        time.Now(),
 		DeletedAt:         nil,
@@ -106,26 +143,84 @@ func (service *MockTodoListService) AddWithUserId(userId string) *models.EmptyRe
 
 	service.TodoListCount += 1
 
-	return &models.EmptyResponseModel{
-		Status:  "success",
-		Message: "todo list added",
+	return &models.TodoListGetResponseModel{
+		StatusModel: models.StatusSuccess(),
+		Message:     "todo list added",
+		TodoList:    service.TodoLists[service.TodoListCount-1],
 	}
 }
 
-func (service *MockTodoListService) DeleteById(id string) *models.EmptyResponseModel {
+func (service *MockTodoListService) UpdateNameById(id string, name string) *models.TodoListGetResponseModel {
+	authUserId := common.GetAuthUserId(service.ServiceManager.Context)
 	for i, todoList := range service.TodoLists {
-		if todoList.Id == id && todoList.DeletedAt == nil {
-			now := time.Now()
-			service.TodoLists[i].DeletedAt = &now
-			return &models.EmptyResponseModel{
-				Status:  "success",
-				Message: "todo list deleted",
+		if todoList.Id == id {
+			if todoList.IsDeleted() {
+				break
+			}
+
+			if todoList.UserId != authUserId {
+				return &models.TodoListGetResponseModel{
+					StatusModel: models.StatusForbidden(),
+					Message:     "You do not have access",
+				}
+			}
+
+			service.TodoLists[i].Name = string([]byte(name)) // to fix fiber.Ctx.FormValue bug
+			service.TodoLists[i].ModifiedAt = time.Now()
+			return &models.TodoListGetResponseModel{
+				StatusModel: models.StatusSuccess(),
+				Message:     "todo list name updated",
+				TodoList:    service.TodoLists[i],
 			}
 		}
 	}
 
-	return &models.EmptyResponseModel{
-		Status:  "not_found",
-		Message: "todo list not found or already deleted",
+	return &models.TodoListGetResponseModel{
+		StatusModel: models.StatusNotFound(),
+		Message:     "todo list not found",
+	}
+}
+
+func (service *MockTodoListService) DeleteById(id string) *models.TodoListGetResponseModel {
+	authUserId := common.GetAuthUserId(service.ServiceManager.Context)
+	for i, todoList := range service.TodoLists {
+		if todoList.Id == id {
+			if todoList.IsDeleted() {
+				break
+			}
+
+			if todoList.UserId != authUserId {
+				return &models.TodoListGetResponseModel{
+					StatusModel: models.StatusForbidden(),
+					Message:     "You do not have access",
+				}
+			}
+			now := time.Now()
+			service.TodoLists[i].DeletedAt = &now
+			return &models.TodoListGetResponseModel{
+				StatusModel: models.StatusSuccess(),
+				Message:     "todo list deleted",
+				TodoList:    service.TodoLists[i],
+			}
+		}
+	}
+
+	return &models.TodoListGetResponseModel{
+		StatusModel: models.StatusNotFound(),
+		Message:     "todo list not found or already deleted",
+	}
+}
+
+func (service *MockTodoListService) getAll(filter func(*models.TodoListModel) bool) *models.TodoListGetAllResponseModel {
+	var filtered = make([]models.TodoListModel, 0)
+	for _, todoList := range service.TodoLists {
+		if filter(&todoList) {
+			filtered = append(filtered, todoList)
+		}
+	}
+	return &models.TodoListGetAllResponseModel{
+		StatusModel: models.StatusSuccess(),
+		TodoLists:   filtered,
+		Message:     "todo lists are found",
 	}
 }

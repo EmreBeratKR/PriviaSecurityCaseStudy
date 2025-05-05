@@ -17,9 +17,12 @@
     </div>
     <div class="open-hint">OPEN</div>
   </a>
-  <form method="POST" action="/todo-list/delete?id={{.Id}}" class="todo-card-delete-btn">
-    <button style="background: none; border: none; cursor: pointer; width: 100%; height: 100%;">
-      <img src="/icons/trash.svg" alt="Delete" width="90%" height="90%">
-    </button>
-  </form>
+  {{if .ShowDeleteButton}}
+    <form method="POST" action="/todo-list/delete" class="todo-card-delete-btn">
+      <input name="id" value="{{.Id}}" hidden>
+      <button style="background: none; border: none; cursor: pointer; width: 100%; height: 100%;">
+        <img src="/icons/trash.svg" alt="Delete" width="90%" height="90%">
+      </button>
+    </form>
+  {{end}}
 </div>
