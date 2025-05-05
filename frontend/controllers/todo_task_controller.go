@@ -40,19 +40,14 @@ func (controller *TodoTaskController) TodoTaskControllerPatch(context *fiber.Ctx
 		return common.SendStatusBadRequest(context)
 	}
 
-	redirectId := context.FormValue("redirect_id")
-	if redirectId == "" {
-		return common.SendStatusBadRequest(context)
-	}
-
 	action := context.FormValue("action")
 
 	if action == "toggle" {
-		return controller.sendPatchToggle(context, id, redirectId)
+		return controller.sendPatchToggle(context, id)
 	}
 
 	if action == "edit" {
-		return controller.sendPatchEdit(context, id, redirectId)
+		return controller.sendPatchEdit(context, id)
 	}
 
 	return common.SendStatusBadRequest(context)
@@ -66,31 +61,26 @@ func (controller *TodoTaskController) TodoTaskControllerDelete(context *fiber.Ct
 		return common.SendStatusBadRequest(context)
 	}
 
-	redirectId := context.Query("redirect_id")
-	if redirectId == "" {
-		return common.SendStatusBadRequest(context)
-	}
-
 	response := controller.ServiceManager.TodoTaskService.DeleteById(id)
 
 	if response.IsNotSuccess() {
 		return common.SendErrorStatus(response.Status, context)
 	}
 
-	return common.RedirectToTodoListPageById(context, redirectId)
+	return common.RedirectToTodoListPageById(context, response.TodoTask.TodoListId)
 }
 
-func (controller *TodoTaskController) sendPatchToggle(context *fiber.Ctx, id string, redirectId string) error {
+func (controller *TodoTaskController) sendPatchToggle(context *fiber.Ctx, id string) error {
 	response := controller.ServiceManager.TodoTaskService.ToggleIsCompletedById(id)
 
 	if response.IsNotSuccess() {
 		return common.SendErrorStatus(response.Status, context)
 	}
 
-	return common.RedirectToTodoListPageById(context, redirectId)
+	return common.RedirectToTodoListPageById(context, response.TodoTask.TodoListId)
 }
 
-func (controller *TodoTaskController) sendPatchEdit(context *fiber.Ctx, id string, redirectId string) error {
+func (controller *TodoTaskController) sendPatchEdit(context *fiber.Ctx, id string) error {
 	content := context.FormValue("content")
 	if content == "" {
 		return common.SendStatusBadRequest(context)
@@ -102,5 +92,5 @@ func (controller *TodoTaskController) sendPatchEdit(context *fiber.Ctx, id strin
 		return common.SendErrorStatus(response.Status, context)
 	}
 
-	return common.RedirectToTodoListPageById(context, redirectId)
+	return common.RedirectToTodoListPageById(context, response.TodoTask.TodoListId)
 }

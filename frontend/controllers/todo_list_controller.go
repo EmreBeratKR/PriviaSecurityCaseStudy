@@ -82,7 +82,7 @@ func (controller *TodoListController) TodoListControllerPost(context *fiber.Ctx)
 		return common.SendErrorStatus(response.Status, context)
 	}
 
-	return common.RedirectToHomePage(context)
+	return common.RedirectToTodoListPageById(context, response.TodoList.Id)
 }
 
 func (controller *TodoListController) TodoListControllerDelete(context *fiber.Ctx) error {
