@@ -1,14 +1,43 @@
 package common
 
 import (
-	"privia-sec-case-study/backend/internal/domain"
 	"privia-sec-case-study/shared"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
 
+func GetClaimsFromHeaders(context *fiber.Ctx) (*shared.UserClaims, error) {
+	authHeader := context.Get("Authorization")
+	if authHeader == "" {
+		return nil, SendStatusUnauthorized(context, "Authorization header is required")
+	}
+
+	authHeaderSplits := strings.Split(authHeader, " ")
+	if len(authHeaderSplits) < 2 {
+		return nil, SendStatusUnauthorized(context, "Unproccessable authorization header")
+	}
+
+	authType := authHeaderSplits[0]
+	if authType != "Bearer" {
+		return nil, SendStatusUnauthorized(context, "Bearer authorization header required")
+	}
+
+	jwtToken := authHeaderSplits[1]
+	if jwtToken == "" {
+		return nil, SendStatusUnauthorized(context, "JWT token is required")
+	}
+
+	claims := shared.GetUserClaims(jwtToken)
+	if claims == nil {
+		return nil, SendStatusUnauthorized(context, "Invalid JWT token")
+	}
+
+	return claims, nil
+}
+
 func SendStatusOkWithValue(value any, context *fiber.Ctx) error {
-	return context.Status(fiber.StatusOK).JSON(domain.ValueResponseOk(value))
+	return context.Status(fiber.StatusOK).JSON(ValueResponseOk(value))
 }
 
 func SendErrorStatus(status string, message string, context *fiber.Ctx) error {

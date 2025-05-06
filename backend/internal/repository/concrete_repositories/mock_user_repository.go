@@ -1,7 +1,8 @@
-package repository
+package concrete_repositories
 
 import (
 	"privia-sec-case-study/backend/internal/domain"
+	"privia-sec-case-study/backend/internal/repository/abstract_repositories"
 	"privia-sec-case-study/shared"
 	"strconv"
 )
@@ -18,18 +19,19 @@ func NewMockUserRepository() *MockUserRepository {
 	return repo
 }
 
-func (repo *MockUserRepository) GetByUsername(username string) *domain.GetUserResponse {
+func (repo *MockUserRepository) GetByUsername(username string) *abstract_repositories.GetUserResponse {
 	for _, user := range repo.users {
 		if user.Username == username {
-			return &domain.GetUserResponse{
+			return &abstract_repositories.GetUserResponse{
 				StatusModel: shared.StatusSuccess(),
 				User:        user,
 			}
 		}
 	}
 
-	return &domain.GetUserResponse{
+	return &abstract_repositories.GetUserResponse{
 		StatusModel: shared.StatusNotFound(),
+		Message:     "User does not exist",
 	}
 }
 

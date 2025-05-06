@@ -1,33 +1,36 @@
-package handler
+package concrete_handlers
 
 import (
 	"encoding/base64"
 	"privia-sec-case-study/backend/internal/common"
-	"privia-sec-case-study/backend/internal/usercase"
+	"privia-sec-case-study/backend/internal/usecase/abstract_usecases"
 	"privia-sec-case-study/shared"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type UserHandler struct {
-	usecase *usercase.UserUsecase
+type DefaultUserHandler struct {
+	usecase abstract_usecases.UserUsecase
 }
 
-func NewUserHandler(usecase *usercase.UserUsecase) *UserHandler {
-	return &UserHandler{
+func NewDefaultUserHandler(usecase abstract_usecases.UserUsecase) *DefaultUserHandler {
+	return &DefaultUserHandler{
 		usecase: usecase,
 	}
 }
 
-func (handler *UserHandler) LoginUser(context *fiber.Ctx) error {
+func (handler *DefaultUserHandler) LoginUser(context *fiber.Ctx) error {
 	authHeader := context.Get("Authorization")
 
 	if authHeader == "" {
-		return common.SendStatusUnauthorized(context, "Auth header missing")
+		return common.SendStatusUnauthorized(context, "Authorization header is required")
 	}
 
 	authHeaderSplits := strings.Split(authHeader, " ")
+	if len(authHeaderSplits) < 2 {
+		return common.SendStatusUnauthorized(context, "Unproccessable authorization header")
+	}
 
 	authType := authHeaderSplits[0]
 	if authType != "Basic" {

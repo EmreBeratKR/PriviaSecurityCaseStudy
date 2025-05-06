@@ -27,6 +27,23 @@ func CalculateJWTExpireTime() time.Time {
 	return time.Now().Add(24 * time.Hour)
 }
 
+func GetUserClaims(jwtToken string) *UserClaims {
+	token, err := jwt.ParseWithClaims(jwtToken, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(getJWTSecret()), nil
+	})
+
+	if err != nil || !token.Valid {
+		return nil
+	}
+
+	claims, ok := token.Claims.(*UserClaims)
+	if !ok {
+		return nil
+	}
+
+	return claims
+}
+
 func getJWTSecret() []byte {
 	return []byte(os.Getenv("JWT_SECRET"))
 }

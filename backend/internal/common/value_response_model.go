@@ -1,4 +1,4 @@
-package domain
+package common
 
 type ValueResponseModel struct {
 	Message string `json:"message"`

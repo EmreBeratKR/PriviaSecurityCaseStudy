@@ -1,13 +1,11 @@
 package common
 
 import (
-	"os"
 	"privia-sec-case-study/frontend/models"
 	"privia-sec-case-study/shared"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
 )
 
 func Login(context *fiber.Ctx, response *models.LoginResponseModel) {
@@ -82,20 +80,7 @@ func GetUserClaims(context *fiber.Ctx) *shared.UserClaims {
 		return nil
 	}
 
-	token, err := jwt.ParseWithClaims(tokenStr, &shared.UserClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
-
-	if err != nil || !token.Valid {
-		return nil
-	}
-
-	claims, ok := token.Claims.(*shared.UserClaims)
-	if !ok {
-		return nil
-	}
-
-	return claims
+	return shared.GetUserClaims(tokenStr)
 }
 
 func getAuthCookieName() string {
