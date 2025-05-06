@@ -74,21 +74,47 @@ func (repo *MockTodoListRepository) GetAllNonDeletedByUserId(userId string) *abs
 }
 
 func (repo *MockTodoListRepository) UpdateNameById(id string, name string) *abstract_repositories.GetTodoListResponse {
-	for i, _ := range repo.todoLists {
-		if repo.todoLists[i].Id == id {
-			repo.todoLists[i].Name = string([]byte(name)) // to fix fiber.Ctx.formValue bug
-			repo.todoLists[i].ModifiedAt = time.Now()
-			return &abstract_repositories.GetTodoListResponse{
-				StatusModel: shared.StatusSuccess(),
-				TodoList:    repo.todoLists[i],
-			}
-		}
-	}
+	return repo.modifyById(id, func(todoList *domain.TodoList) {
+		todoList.Name = string([]byte(name)) // to fix fiber.Ctx.formValue bug
+	})
+}
 
-	return &abstract_repositories.GetTodoListResponse{
-		StatusModel: shared.StatusNotFound(),
-		Message:     "no todo list found",
-	}
+func (repo *MockTodoListRepository) UpdateModifiedAtById(id string) *abstract_repositories.GetTodoListResponse {
+	return repo.modifyById(id, func(todoList *domain.TodoList) {})
+}
+
+func (repo *MockTodoListRepository) IncrementTaskCountById(id string, isCompleted bool) *abstract_repositories.GetTodoListResponse {
+	return repo.modifyById(id, func(todoList *domain.TodoList) {
+		if isCompleted {
+			todoList.CompletedTasks += 1
+		}
+		todoList.TotalTasks += 1
+		todoList.UpdateCompletionPercent()
+	})
+}
+
+func (repo *MockTodoListRepository) DecrementTaskCountById(id string, isCompleted bool) *abstract_repositories.GetTodoListResponse {
+	return repo.modifyById(id, func(todoList *domain.TodoList) {
+		if isCompleted {
+			todoList.CompletedTasks -= 1
+		}
+		todoList.TotalTasks -= 1
+		todoList.UpdateCompletionPercent()
+	})
+}
+
+func (repo *MockTodoListRepository) IncrementCompletedTaskCountById(id string) *abstract_repositories.GetTodoListResponse {
+	return repo.modifyById(id, func(todoList *domain.TodoList) {
+		todoList.CompletedTasks += 1
+		todoList.UpdateCompletionPercent()
+	})
+}
+
+func (repo *MockTodoListRepository) DecrementCompletedTaskCountById(id string) *abstract_repositories.GetTodoListResponse {
+	return repo.modifyById(id, func(todoList *domain.TodoList) {
+		todoList.CompletedTasks -= 1
+		todoList.UpdateCompletionPercent()
+	})
 }
 
 func (repo *MockTodoListRepository) AddWithUserIdAndName(userId string, name string) *abstract_repositories.GetTodoListResponse {
@@ -102,7 +128,7 @@ func (repo *MockTodoListRepository) DeleteById(id string) *abstract_repositories
 	for i, _ := range repo.todoLists {
 		if repo.todoLists[i].Id == id {
 			time := time.Now()
-			repo.todoLists[i].ModifiedAt = time
+			repo.todoLists[i].UpdateModifiedAt()
 			repo.todoLists[i].DeletedAt = &time
 			return &abstract_repositories.GetTodoListResponse{
 				StatusModel: shared.StatusSuccess(),
@@ -174,7 +200,7 @@ func (repo *MockTodoListRepository) modifyById(id string, modifier func(*domain.
 	for i, _ := range repo.todoLists {
 		if repo.todoLists[i].Id == id {
 			modifier(&repo.todoLists[i])
-			repo.todoLists[i].ModifiedAt = time.Now()
+			repo.todoLists[i].UpdateModifiedAt()
 			return &abstract_repositories.GetTodoListResponse{
 				StatusModel: shared.StatusSuccess(),
 				TodoList:    repo.todoLists[i],

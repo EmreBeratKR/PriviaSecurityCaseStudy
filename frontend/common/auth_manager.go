@@ -75,12 +75,16 @@ func GetAuthUsername(context *fiber.Ctx) string {
 }
 
 func GetUserClaims(context *fiber.Ctx) *shared.UserClaims {
-	tokenStr := context.Cookies(getAuthCookieName())
+	tokenStr := GetJWTFromCookies(context)
 	if tokenStr == "" {
 		return nil
 	}
 
 	return shared.GetUserClaims(tokenStr)
+}
+
+func GetJWTFromCookies(context *fiber.Ctx) string {
+	return context.Cookies(getAuthCookieName())
 }
 
 func getAuthCookieName() string {

@@ -15,8 +15,6 @@ type IndexController struct {
 }
 
 func (controller *IndexController) IndexControllerGet(context *fiber.Ctx) error {
-	controller.ServiceManager.SetContext(context)
-
 	isAdmin := common.IsAuthenticatedAsAdmin(context)
 
 	if isAdmin {
@@ -27,7 +25,7 @@ func (controller *IndexController) IndexControllerGet(context *fiber.Ctx) error 
 }
 
 func (controller *IndexController) sendAdminPage(context *fiber.Ctx) error {
-	todoListsResponse := controller.ServiceManager.TodoListService.GetAllNonDeleted()
+	todoListsResponse := controller.ServiceManager.TodoListService.GetAllNonDeleted(context)
 
 	if todoListsResponse.IsNotSuccess() {
 		return common.SendErrorStatus(todoListsResponse.Status, context)
@@ -65,7 +63,7 @@ func (controller *IndexController) sendAdminPage(context *fiber.Ctx) error {
 
 func (controller *IndexController) sendUserPage(context *fiber.Ctx) error {
 	userId := common.GetAuthUserId(context)
-	todoListsResponse := controller.ServiceManager.TodoListService.GetAllNonDeletedByUserId(userId)
+	todoListsResponse := controller.ServiceManager.TodoListService.GetAllNonDeletedByUserId(context, userId)
 
 	if todoListsResponse.IsNotSuccess() {
 		return common.SendErrorStatus(todoListsResponse.Status, context)

@@ -12,19 +12,17 @@ type TodoListController struct {
 }
 
 func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) error {
-	controller.ServiceManager.SetContext(context)
-
 	todoListId := context.Query("id")
 	if todoListId == "" {
 		return common.SendStatusBadRequest(context)
 	}
 
-	todoListsResponse := controller.ServiceManager.TodoListService.GetNonDeletedById(todoListId)
+	todoListsResponse := controller.ServiceManager.TodoListService.GetNonDeletedById(context, todoListId)
 	if todoListsResponse.IsNotSuccess() {
 		return common.SendErrorStatus(todoListsResponse.Status, context)
 	}
 
-	todoTasksResponse := controller.ServiceManager.TodoTaskService.GetAllNonDeletedByTodoListId(todoListId)
+	todoTasksResponse := controller.ServiceManager.TodoTaskService.GetAllNonDeletedByTodoListId(context, todoListId)
 	if todoTasksResponse.IsNotSuccess() {
 		return common.SendErrorStatus(todoTasksResponse.Status, context)
 	}
@@ -61,8 +59,6 @@ func (controller *TodoListController) TodoListControllerGet(context *fiber.Ctx) 
 }
 
 func (controller *TodoListController) TodoListControllerPost(context *fiber.Ctx) error {
-	controller.ServiceManager.SetContext(context)
-
 	userId := context.FormValue("user_id")
 	if userId == "" {
 		return common.SendStatusBadRequest(context)
@@ -77,7 +73,7 @@ func (controller *TodoListController) TodoListControllerPost(context *fiber.Ctx)
 		return common.SendStatusBadRequest(context)
 	}
 
-	response := controller.ServiceManager.TodoListService.AddWithUserIdAndName(userId, name)
+	response := controller.ServiceManager.TodoListService.AddWithUserIdAndName(context, userId, name)
 	if response.IsNotSuccess() {
 		return common.SendErrorStatus(response.Status, context)
 	}
@@ -86,14 +82,12 @@ func (controller *TodoListController) TodoListControllerPost(context *fiber.Ctx)
 }
 
 func (controller *TodoListController) TodoListControllerDelete(context *fiber.Ctx) error {
-	controller.ServiceManager.SetContext(context)
-
 	id := context.FormValue("id")
 	if id == "" {
 		return common.SendStatusBadRequest(context)
 	}
 
-	response := controller.ServiceManager.TodoListService.DeleteById(id)
+	response := controller.ServiceManager.TodoListService.DeleteById(context, id)
 	if response.IsNotSuccess() {
 		return common.SendErrorStatus(response.Status, context)
 	}
@@ -102,8 +96,6 @@ func (controller *TodoListController) TodoListControllerDelete(context *fiber.Ct
 }
 
 func (controller *TodoListController) TodoListControllerPatch(context *fiber.Ctx) error {
-	controller.ServiceManager.SetContext(context)
-
 	id := context.FormValue("id")
 	if id == "" {
 		return common.SendStatusBadRequest(context)
@@ -118,7 +110,7 @@ func (controller *TodoListController) TodoListControllerPatch(context *fiber.Ctx
 		return common.SendStatusBadRequest(context)
 	}
 
-	response := controller.ServiceManager.TodoListService.UpdateNameById(id, name)
+	response := controller.ServiceManager.TodoListService.UpdateNameById(context, id, name)
 	if response.IsNotSuccess() {
 		return common.SendErrorStatus(response.Status, context)
 	}

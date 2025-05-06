@@ -11,6 +11,11 @@ type TodoListRepository interface {
 	GetAllNonDeletedByUserId(userId string) *GetAllTodoListsResponse
 	AddWithUserIdAndName(userId string, name string) *GetTodoListResponse
 	UpdateNameById(id string, name string) *GetTodoListResponse
+	UpdateModifiedAtById(id string) *GetTodoListResponse
+	IncrementTaskCountById(id string, isCompleted bool) *GetTodoListResponse
+	DecrementTaskCountById(id string, isCompleted bool) *GetTodoListResponse
+	IncrementCompletedTaskCountById(id string) *GetTodoListResponse
+	DecrementCompletedTaskCountById(id string) *GetTodoListResponse
 	DeleteById(id string) *GetTodoListResponse
 }
 

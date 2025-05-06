@@ -6,6 +6,8 @@ import (
 	"privia-sec-case-study/shared"
 	"strconv"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type MockTodoListService struct {
@@ -53,8 +55,8 @@ func (service *MockTodoListService) Init() {
 	service.TodoListCount = len(service.TodoLists)
 }
 
-func (service *MockTodoListService) GetNonDeletedById(id string) *models.TodoListGetResponseModel {
-	claims := common.GetUserClaims(service.ServiceManager.Context)
+func (service *MockTodoListService) GetNonDeletedById(context *fiber.Ctx, id string) *models.TodoListGetResponseModel {
+	claims := common.GetUserClaims(context)
 	for _, todoList := range service.TodoLists {
 		if todoList.Id == id {
 			if todoList.IsDeleted() {
@@ -81,8 +83,8 @@ func (service *MockTodoListService) GetNonDeletedById(id string) *models.TodoLis
 	}
 }
 
-func (service *MockTodoListService) GetAllNonDeleted() *models.TodoListGetAllResponseModel {
-	isAdmin := common.IsAuthenticatedAsAdmin(service.ServiceManager.Context)
+func (service *MockTodoListService) GetAllNonDeleted(context *fiber.Ctx) *models.TodoListGetAllResponseModel {
+	isAdmin := common.IsAuthenticatedAsAdmin(context)
 
 	if !isAdmin {
 		return &models.TodoListGetAllResponseModel{
@@ -96,8 +98,8 @@ func (service *MockTodoListService) GetAllNonDeleted() *models.TodoListGetAllRes
 	})
 }
 
-func (service *MockTodoListService) GetAllNonDeletedByUserId(userId string) *models.TodoListGetAllResponseModel {
-	claims := common.GetUserClaims(service.ServiceManager.Context)
+func (service *MockTodoListService) GetAllNonDeletedByUserId(context *fiber.Ctx, userId string) *models.TodoListGetAllResponseModel {
+	claims := common.GetUserClaims(context)
 
 	if userId != claims.Subject && !claims.IsAdmin() {
 		return &models.TodoListGetAllResponseModel{
@@ -119,8 +121,8 @@ func (service *MockTodoListService) GetAllNonDeletedByUserId(userId string) *mod
 	})
 }
 
-func (service *MockTodoListService) AddWithUserIdAndName(userId string, name string) *models.TodoListGetResponseModel {
-	authUserId := common.GetAuthUserId(service.ServiceManager.Context)
+func (service *MockTodoListService) AddWithUserIdAndName(context *fiber.Ctx, userId string, name string) *models.TodoListGetResponseModel {
+	authUserId := common.GetAuthUserId(context)
 
 	if userId != authUserId {
 		return &models.TodoListGetResponseModel{
@@ -151,8 +153,8 @@ func (service *MockTodoListService) AddWithUserIdAndName(userId string, name str
 	}
 }
 
-func (service *MockTodoListService) UpdateNameById(id string, name string) *models.TodoListGetResponseModel {
-	authUserId := common.GetAuthUserId(service.ServiceManager.Context)
+func (service *MockTodoListService) UpdateNameById(context *fiber.Ctx, id string, name string) *models.TodoListGetResponseModel {
+	authUserId := common.GetAuthUserId(context)
 	for i, todoList := range service.TodoLists {
 		if todoList.Id == id {
 			if todoList.IsDeleted() {
@@ -182,8 +184,8 @@ func (service *MockTodoListService) UpdateNameById(id string, name string) *mode
 	}
 }
 
-func (service *MockTodoListService) DeleteById(id string) *models.TodoListGetResponseModel {
-	authUserId := common.GetAuthUserId(service.ServiceManager.Context)
+func (service *MockTodoListService) DeleteById(context *fiber.Ctx, id string) *models.TodoListGetResponseModel {
+	authUserId := common.GetAuthUserId(context)
 	for i, todoList := range service.TodoLists {
 		if todoList.Id == id {
 			if todoList.IsDeleted() {

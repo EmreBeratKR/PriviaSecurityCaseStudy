@@ -19,3 +19,15 @@ type TodoList struct {
 func (todoList *TodoList) IsDeleted() bool {
 	return todoList.DeletedAt != nil
 }
+
+func (model *TodoList) UpdateModifiedAt() {
+	model.ModifiedAt = time.Now()
+}
+
+func (model *TodoList) UpdateCompletionPercent() {
+	if model.TotalTasks <= 0 {
+		model.CompletionPercent = 0
+		return
+	}
+	model.CompletionPercent = (model.CompletedTasks * 100) / model.TotalTasks
+}

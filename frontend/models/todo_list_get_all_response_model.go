@@ -5,7 +5,7 @@ import "privia-sec-case-study/shared"
 type TodoListGetAllResponseModel struct {
 	shared.StatusModel
 	Message   string          `json:"message"`
-	TodoLists []TodoListModel `json:"todo_lists"`
+	TodoLists []TodoListModel `json:"value"`
 }
 
 func (model *TodoListGetAllResponseModel) Filtered(filter func(*TodoListModel) bool) []TodoListModel {

@@ -1,12 +1,16 @@
 package interfaces
 
-import "privia-sec-case-study/frontend/models"
+import (
+	"privia-sec-case-study/frontend/models"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 type TodoListService interface {
-	GetNonDeletedById(id string) *models.TodoListGetResponseModel
-	GetAllNonDeleted() *models.TodoListGetAllResponseModel
-	GetAllNonDeletedByUserId(userId string) *models.TodoListGetAllResponseModel
-	AddWithUserIdAndName(userId string, name string) *models.TodoListGetResponseModel
-	UpdateNameById(id string, name string) *models.TodoListGetResponseModel
-	DeleteById(id string) *models.TodoListGetResponseModel
+	GetNonDeletedById(context *fiber.Ctx, id string) *models.TodoListGetResponseModel
+	GetAllNonDeleted(context *fiber.Ctx) *models.TodoListGetAllResponseModel
+	GetAllNonDeletedByUserId(context *fiber.Ctx, userId string) *models.TodoListGetAllResponseModel
+	AddWithUserIdAndName(context *fiber.Ctx, userId string, name string) *models.TodoListGetResponseModel
+	UpdateNameById(context *fiber.Ctx, id string, name string) *models.TodoListGetResponseModel
+	DeleteById(context *fiber.Ctx, id string) *models.TodoListGetResponseModel
 }

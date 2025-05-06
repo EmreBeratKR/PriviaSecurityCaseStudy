@@ -27,7 +27,7 @@ func main() {
 	todoListHandler := concrete_handlers.NewDefaultTodoListHandler(todoListUsecase)
 
 	todoTaskRepository := concrete_repositories.NewMockTodoTaskRepository()
-	todoTaskUsecase := concrete_usecases.NewDefaultTodoTaskUsecase(todoTaskRepository)
+	todoTaskUsecase := concrete_usecases.NewDefaultTodoTaskUsecase(todoListRepository, todoTaskRepository)
 	todoTaskHandler := concrete_handlers.NewDefaultTodoTaskHandler(todoListUsecase, todoTaskUsecase)
 
 	router.MapUserRoutes(app, userHandler)
