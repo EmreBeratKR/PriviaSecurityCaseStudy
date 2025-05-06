@@ -6,9 +6,9 @@ import (
 )
 
 type TodoListRepository interface {
-	GetById(id string) *GetTodoListResponse
-	GetAllNonDeleted() *GetAllTodoListResponse
-	GetAllNonDeletedByUserId(userId string) *GetAllTodoListResponse
+	GetNonDeletedById(id string) *GetTodoListResponse
+	GetAllNonDeleted() *GetAllTodoListsResponse
+	GetAllNonDeletedByUserId(userId string) *GetAllTodoListsResponse
 	AddWithUserIdAndName(userId string, name string) *GetTodoListResponse
 	UpdateNameById(id string, name string) *GetTodoListResponse
 	DeleteById(id string) *GetTodoListResponse
@@ -20,7 +20,7 @@ type GetTodoListResponse struct {
 	TodoList domain.TodoList `json:"todo_list"`
 }
 
-type GetAllTodoListResponse struct {
+type GetAllTodoListsResponse struct {
 	shared.StatusModel
 	Message   string            `json:"message"`
 	TodoLists []domain.TodoList `json:"todo_lists"`

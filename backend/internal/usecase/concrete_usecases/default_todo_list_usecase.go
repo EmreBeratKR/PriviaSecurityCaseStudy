@@ -2,7 +2,6 @@ package concrete_usecases
 
 import (
 	"privia-sec-case-study/backend/internal/repository/abstract_repositories"
-	"privia-sec-case-study/shared"
 )
 
 type TodoListUsecase struct {
@@ -16,33 +15,14 @@ func NewDefaultTodoListUsecase(repository abstract_repositories.TodoListReposito
 }
 
 func (usecase *TodoListUsecase) GetNonDeletedById(id string) *abstract_repositories.GetTodoListResponse {
-	response := usecase.repository.GetById(id)
-	if response.IsNotSuccess() {
-		return &abstract_repositories.GetTodoListResponse{
-			StatusModel: response.StatusModel,
-			Message:     response.Message,
-		}
-	}
-
-	todoList := response.TodoList
-	if todoList.IsDeleted() {
-		return &abstract_repositories.GetTodoListResponse{
-			StatusModel: shared.StatusNotFound(),
-			Message:     "Todo list was deleted",
-		}
-	}
-
-	return &abstract_repositories.GetTodoListResponse{
-		StatusModel: shared.StatusSuccess(),
-		TodoList:    todoList,
-	}
+	return usecase.repository.GetNonDeletedById(id)
 }
 
-func (usecase *TodoListUsecase) GetAllNonDeleted() *abstract_repositories.GetAllTodoListResponse {
+func (usecase *TodoListUsecase) GetAllNonDeleted() *abstract_repositories.GetAllTodoListsResponse {
 	return usecase.repository.GetAllNonDeleted()
 }
 
-func (usecase *TodoListUsecase) GetAllNonDeletedByUserId(userId string) *abstract_repositories.GetAllTodoListResponse {
+func (usecase *TodoListUsecase) GetAllNonDeletedByUserId(userId string) *abstract_repositories.GetAllTodoListsResponse {
 	return usecase.repository.GetAllNonDeletedByUserId(userId)
 }
 

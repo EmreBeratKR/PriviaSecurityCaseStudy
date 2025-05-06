@@ -7,30 +7,30 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func GetClaimsFromHeaders(context *fiber.Ctx) (*shared.UserClaims, error) {
+func GetClaimsFromHeaders(context *fiber.Ctx) (*shared.UserClaims, func() error) {
 	authHeader := context.Get("Authorization")
 	if authHeader == "" {
-		return nil, SendStatusUnauthorized(context, "Authorization header is required")
+		return nil, func() error { return SendStatusUnauthorized(context, "Authorization header is required") }
 	}
 
 	authHeaderSplits := strings.Split(authHeader, " ")
 	if len(authHeaderSplits) < 2 {
-		return nil, SendStatusUnauthorized(context, "Unproccessable authorization header")
+		return nil, func() error { return SendStatusUnauthorized(context, "Unproccessable authorization header") }
 	}
 
 	authType := authHeaderSplits[0]
 	if authType != "Bearer" {
-		return nil, SendStatusUnauthorized(context, "Bearer authorization header required")
+		return nil, func() error { return SendStatusUnauthorized(context, "Bearer authorization header required") }
 	}
 
 	jwtToken := authHeaderSplits[1]
 	if jwtToken == "" {
-		return nil, SendStatusUnauthorized(context, "JWT token is required")
+		return nil, func() error { return SendStatusUnauthorized(context, "JWT token is required") }
 	}
 
 	claims := shared.GetUserClaims(jwtToken)
 	if claims == nil {
-		return nil, SendStatusUnauthorized(context, "Invalid JWT token")
+		return nil, func() error { return SendStatusUnauthorized(context, "Invalid JWT token") }
 	}
 
 	return claims, nil

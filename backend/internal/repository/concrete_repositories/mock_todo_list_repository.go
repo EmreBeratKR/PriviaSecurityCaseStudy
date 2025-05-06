@@ -55,29 +55,19 @@ func NewMockTodoListRepository() *MockTodoListRepository {
 	return repository
 }
 
-func (repo *MockTodoListRepository) GetById(id string) *abstract_repositories.GetTodoListResponse {
-	for _, todoList := range repo.todoLists {
-		if todoList.Id == id {
-			return &abstract_repositories.GetTodoListResponse{
-				StatusModel: shared.StatusSuccess(),
-				TodoList:    todoList,
-			}
-		}
-	}
-
-	return &abstract_repositories.GetTodoListResponse{
-		StatusModel: shared.StatusNotFound(),
-		Message:     "Todo list not found",
-	}
+func (repo *MockTodoListRepository) GetNonDeletedById(id string) *abstract_repositories.GetTodoListResponse {
+	return repo.getByFilter(func(todoList *domain.TodoList) bool {
+		return !todoList.IsDeleted() && todoList.Id == id
+	})
 }
 
-func (repo *MockTodoListRepository) GetAllNonDeleted() *abstract_repositories.GetAllTodoListResponse {
+func (repo *MockTodoListRepository) GetAllNonDeleted() *abstract_repositories.GetAllTodoListsResponse {
 	return repo.getAllByFilter(func(todoList *domain.TodoList) bool {
 		return !todoList.IsDeleted()
 	})
 }
 
-func (repo *MockTodoListRepository) GetAllNonDeletedByUserId(userId string) *abstract_repositories.GetAllTodoListResponse {
+func (repo *MockTodoListRepository) GetAllNonDeletedByUserId(userId string) *abstract_repositories.GetAllTodoListsResponse {
 	return repo.getAllByFilter(func(todoList *domain.TodoList) bool {
 		return todoList.UserId == userId && !todoList.IsDeleted()
 	})
@@ -127,7 +117,23 @@ func (repo *MockTodoListRepository) DeleteById(id string) *abstract_repositories
 	}
 }
 
-func (repo *MockTodoListRepository) getAllByFilter(filter func(*domain.TodoList) bool) *abstract_repositories.GetAllTodoListResponse {
+func (repo *MockTodoListRepository) getByFilter(filter func(*domain.TodoList) bool) *abstract_repositories.GetTodoListResponse {
+	for _, todoList := range repo.todoLists {
+		if filter(&todoList) {
+			return &abstract_repositories.GetTodoListResponse{
+				StatusModel: shared.StatusSuccess(),
+				TodoList:    todoList,
+			}
+		}
+	}
+
+	return &abstract_repositories.GetTodoListResponse{
+		StatusModel: shared.StatusNotFound(),
+		Message:     "Todo list not found",
+	}
+}
+
+func (repo *MockTodoListRepository) getAllByFilter(filter func(*domain.TodoList) bool) *abstract_repositories.GetAllTodoListsResponse {
 	var result = make([]domain.TodoList, 0)
 
 	for _, todoList := range repo.todoLists {
@@ -136,7 +142,7 @@ func (repo *MockTodoListRepository) getAllByFilter(filter func(*domain.TodoList)
 		}
 	}
 
-	return &abstract_repositories.GetAllTodoListResponse{
+	return &abstract_repositories.GetAllTodoListsResponse{
 		StatusModel: shared.StatusSuccess(),
 		TodoLists:   result,
 	}
@@ -161,5 +167,23 @@ func (repo *MockTodoListRepository) add(modifier func(*domain.TodoList)) *abstra
 	return &abstract_repositories.GetTodoListResponse{
 		StatusModel: shared.StatusSuccess(),
 		TodoList:    todoList,
+	}
+}
+
+func (repo *MockTodoListRepository) modifyById(id string, modifier func(*domain.TodoList)) *abstract_repositories.GetTodoListResponse {
+	for i, _ := range repo.todoLists {
+		if repo.todoLists[i].Id == id {
+			modifier(&repo.todoLists[i])
+			repo.todoLists[i].ModifiedAt = time.Now()
+			return &abstract_repositories.GetTodoListResponse{
+				StatusModel: shared.StatusSuccess(),
+				TodoList:    repo.todoLists[i],
+			}
+		}
+	}
+
+	return &abstract_repositories.GetTodoListResponse{
+		StatusModel: shared.StatusNotFound(),
+		Message:     "todo list not found",
 	}
 }

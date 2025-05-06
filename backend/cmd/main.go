@@ -26,8 +26,13 @@ func main() {
 	todoListUsecase := concrete_usecases.NewDefaultTodoListUsecase(todoListRepository)
 	todoListHandler := concrete_handlers.NewDefaultTodoListHandler(todoListUsecase)
 
+	todoTaskRepository := concrete_repositories.NewMockTodoTaskRepository()
+	todoTaskUsecase := concrete_usecases.NewDefaultTodoTaskUsecase(todoTaskRepository)
+	todoTaskHandler := concrete_handlers.NewDefaultTodoTaskHandler(todoListUsecase, todoTaskUsecase)
+
 	router.MapUserRoutes(app, userHandler)
 	router.MapTodoListRouter(app, todoListHandler)
+	router.MapTodoTaskRoutes(app, todoTaskHandler)
 
 	port := os.Getenv("BACKEND_PORT")
 	app.Listen(":" + port)

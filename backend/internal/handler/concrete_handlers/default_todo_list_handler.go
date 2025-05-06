@@ -19,9 +19,9 @@ func NewDefaultTodoListHandler(usecase abstract_usecases.TodoListUsecase) *Defau
 }
 
 func (handler *DefaultTodoListHandler) GetTodoLists(context *fiber.Ctx) error {
-	claims, err := common.GetClaimsFromHeaders(context)
-	if err != nil {
-		return err
+	claims, errCallback := common.GetClaimsFromHeaders(context)
+	if claims == nil {
+		return errCallback()
 	}
 
 	id := context.Query("id")
@@ -38,9 +38,9 @@ func (handler *DefaultTodoListHandler) GetTodoLists(context *fiber.Ctx) error {
 }
 
 func (handler *DefaultTodoListHandler) PostTodoLists(context *fiber.Ctx) error {
-	claims, err := common.GetClaimsFromHeaders(context)
-	if err != nil {
-		return err
+	claims, errCallback := common.GetClaimsFromHeaders(context)
+	if claims == nil {
+		return errCallback()
 	}
 
 	userId := context.FormValue("user_id")
@@ -67,9 +67,9 @@ func (handler *DefaultTodoListHandler) PostTodoLists(context *fiber.Ctx) error {
 }
 
 func (handler *DefaultTodoListHandler) PatchTodoLists(context *fiber.Ctx) error {
-	claims, err := common.GetClaimsFromHeaders(context)
-	if err != nil {
-		return err
+	claims, errCallback := common.GetClaimsFromHeaders(context)
+	if claims == nil {
+		return errCallback()
 	}
 
 	id := context.FormValue("id")
