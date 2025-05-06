@@ -14,7 +14,7 @@ func Login(context *fiber.Ctx, response *models.LoginResponseModel) {
 	context.Cookie(&fiber.Cookie{
 		Name:     getAuthCookieName(),
 		Value:    response.Token,
-		Expires:  response.ExpiresAt,
+		Expires:  shared.CalculateJWTExpireTime(),
 		HTTPOnly: true,
 		Secure:   shared.IsProductionEnvironment(),
 		SameSite: "Lax",
@@ -76,13 +76,13 @@ func GetAuthUsername(context *fiber.Ctx) string {
 	return claims.Username
 }
 
-func GetUserClaims(context *fiber.Ctx) *models.UserClaims {
+func GetUserClaims(context *fiber.Ctx) *shared.UserClaims {
 	tokenStr := context.Cookies(getAuthCookieName())
 	if tokenStr == "" {
 		return nil
 	}
 
-	token, err := jwt.ParseWithClaims(tokenStr, &models.UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &shared.UserClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
@@ -90,7 +90,7 @@ func GetUserClaims(context *fiber.Ctx) *models.UserClaims {
 		return nil
 	}
 
-	claims, ok := token.Claims.(*models.UserClaims)
+	claims, ok := token.Claims.(*shared.UserClaims)
 	if !ok {
 		return nil
 	}

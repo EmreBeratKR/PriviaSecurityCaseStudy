@@ -1,6 +1,7 @@
 package services
 
 import (
+	"os"
 	"privia-sec-case-study/frontend/interfaces"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,13 +14,15 @@ type ServiceManager struct {
 	Context         *fiber.Ctx
 }
 
-func MockServiceManager() *ServiceManager {
+func CreateServiceManager() *ServiceManager {
 	serviceManager := &ServiceManager{}
 
-	userService := &MockUserService{
+	/* userService := &MockUserService{
 		ServiceManager: serviceManager,
 	}
-	userService.Init()
+	userService.Init() */
+	apiUrl := os.Getenv("API_URL")
+	userService := NewApiUserService(apiUrl)
 
 	todoListService := &MockTodoListService{
 		ServiceManager: serviceManager,

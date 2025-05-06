@@ -1,6 +1,8 @@
 package models
 
+import "privia-sec-case-study/shared"
+
 type EmptyResponseModel struct {
-	StatusModel
+	shared.StatusModel
 	Message string `json:"message"`
 }

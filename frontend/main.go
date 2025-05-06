@@ -15,7 +15,7 @@ func init() {
 }
 
 func main() {
-	serviceManager := services.MockServiceManager()
+	serviceManager := services.CreateServiceManager()
 	engine := html.New("./frontend/views", ".tmpl")
 	app := fiber.New(fiber.Config{
 		Views: engine,

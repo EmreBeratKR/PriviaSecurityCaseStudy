@@ -3,6 +3,7 @@ package services
 import (
 	"privia-sec-case-study/frontend/common"
 	"privia-sec-case-study/frontend/models"
+	"privia-sec-case-study/shared"
 	"strconv"
 	"time"
 )
@@ -62,20 +63,20 @@ func (service *MockTodoListService) GetNonDeletedById(id string) *models.TodoLis
 
 			if todoList.UserId != claims.Subject && !claims.IsAdmin() {
 				return &models.TodoListGetResponseModel{
-					StatusModel: models.StatusForbidden(),
+					StatusModel: shared.StatusForbidden(),
 					Message:     "You do not have access",
 				}
 			}
 
 			return &models.TodoListGetResponseModel{
-				StatusModel: models.StatusSuccess(),
+				StatusModel: shared.StatusSuccess(),
 				TodoList:    todoList,
 				Message:     "todo list found",
 			}
 		}
 	}
 	return &models.TodoListGetResponseModel{
-		StatusModel: models.StatusNotFound(),
+		StatusModel: shared.StatusNotFound(),
 		Message:     "todo list not found",
 	}
 }
@@ -85,7 +86,7 @@ func (service *MockTodoListService) GetAllNonDeleted() *models.TodoListGetAllRes
 
 	if !isAdmin {
 		return &models.TodoListGetAllResponseModel{
-			StatusModel: models.StatusForbidden(),
+			StatusModel: shared.StatusForbidden(),
 			Message:     "You do not have access",
 		}
 	}
@@ -100,7 +101,7 @@ func (service *MockTodoListService) GetAllNonDeletedByUserId(userId string) *mod
 
 	if userId != claims.Subject && !claims.IsAdmin() {
 		return &models.TodoListGetAllResponseModel{
-			StatusModel: models.StatusForbidden(),
+			StatusModel: shared.StatusForbidden(),
 			Message:     "You do not have access",
 		}
 	}
@@ -123,7 +124,7 @@ func (service *MockTodoListService) AddWithUserIdAndName(userId string, name str
 
 	if userId != authUserId {
 		return &models.TodoListGetResponseModel{
-			StatusModel: models.StatusForbidden(),
+			StatusModel: shared.StatusForbidden(),
 			Message:     "You do not have access",
 		}
 	}
@@ -144,7 +145,7 @@ func (service *MockTodoListService) AddWithUserIdAndName(userId string, name str
 	service.TodoListCount += 1
 
 	return &models.TodoListGetResponseModel{
-		StatusModel: models.StatusSuccess(),
+		StatusModel: shared.StatusSuccess(),
 		Message:     "todo list added",
 		TodoList:    service.TodoLists[service.TodoListCount-1],
 	}
@@ -160,7 +161,7 @@ func (service *MockTodoListService) UpdateNameById(id string, name string) *mode
 
 			if todoList.UserId != authUserId {
 				return &models.TodoListGetResponseModel{
-					StatusModel: models.StatusForbidden(),
+					StatusModel: shared.StatusForbidden(),
 					Message:     "You do not have access",
 				}
 			}
@@ -168,7 +169,7 @@ func (service *MockTodoListService) UpdateNameById(id string, name string) *mode
 			service.TodoLists[i].Name = string([]byte(name)) // to fix fiber.Ctx.FormValue bug
 			service.TodoLists[i].ModifiedAt = time.Now()
 			return &models.TodoListGetResponseModel{
-				StatusModel: models.StatusSuccess(),
+				StatusModel: shared.StatusSuccess(),
 				Message:     "todo list name updated",
 				TodoList:    service.TodoLists[i],
 			}
@@ -176,7 +177,7 @@ func (service *MockTodoListService) UpdateNameById(id string, name string) *mode
 	}
 
 	return &models.TodoListGetResponseModel{
-		StatusModel: models.StatusNotFound(),
+		StatusModel: shared.StatusNotFound(),
 		Message:     "todo list not found",
 	}
 }
@@ -191,14 +192,14 @@ func (service *MockTodoListService) DeleteById(id string) *models.TodoListGetRes
 
 			if todoList.UserId != authUserId {
 				return &models.TodoListGetResponseModel{
-					StatusModel: models.StatusForbidden(),
+					StatusModel: shared.StatusForbidden(),
 					Message:     "You do not have access",
 				}
 			}
 			now := time.Now()
 			service.TodoLists[i].DeletedAt = &now
 			return &models.TodoListGetResponseModel{
-				StatusModel: models.StatusSuccess(),
+				StatusModel: shared.StatusSuccess(),
 				Message:     "todo list deleted",
 				TodoList:    service.TodoLists[i],
 			}
@@ -206,7 +207,7 @@ func (service *MockTodoListService) DeleteById(id string) *models.TodoListGetRes
 	}
 
 	return &models.TodoListGetResponseModel{
-		StatusModel: models.StatusNotFound(),
+		StatusModel: shared.StatusNotFound(),
 		Message:     "todo list not found or already deleted",
 	}
 }
@@ -219,7 +220,7 @@ func (service *MockTodoListService) getAll(filter func(*models.TodoListModel) bo
 		}
 	}
 	return &models.TodoListGetAllResponseModel{
-		StatusModel: models.StatusSuccess(),
+		StatusModel: shared.StatusSuccess(),
 		TodoLists:   filtered,
 		Message:     "todo lists are found",
 	}

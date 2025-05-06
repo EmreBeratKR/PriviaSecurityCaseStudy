@@ -1,6 +1,10 @@
 package repository
 
-import "privia-sec-case-study/backend/internal/domain"
+import (
+	"privia-sec-case-study/backend/internal/domain"
+	"privia-sec-case-study/shared"
+	"strconv"
+)
 
 type MockUserRepository struct {
 	users     []domain.User
@@ -8,18 +12,34 @@ type MockUserRepository struct {
 }
 
 func NewMockUserRepository() *MockUserRepository {
-	return &MockUserRepository{
-		users: []domain.User{
-			{Id: "0", Username: "Emre"},
-			{Id: "1", Username: "Berat"},
-		},
-		userCount: 2,
+	repo := &MockUserRepository{}
+	repo.createUser("Emre", "1234", "user")
+	repo.createUser("Berat", "1234", "admin")
+	return repo
+}
+
+func (repo *MockUserRepository) GetByUsername(username string) *domain.GetUserResponse {
+	for _, user := range repo.users {
+		if user.Username == username {
+			return &domain.GetUserResponse{
+				StatusModel: shared.StatusSuccess(),
+				User:        user,
+			}
+		}
+	}
+
+	return &domain.GetUserResponse{
+		StatusModel: shared.StatusNotFound(),
 	}
 }
 
-func (repo *MockUserRepository) GetAll() *domain.GetAllUsersResponse {
-	return &domain.GetAllUsersResponse{
-		StatusModel: domain.StatusSuccess(),
-		Users:       repo.users,
-	}
+func (repo *MockUserRepository) createUser(username string, password string, role string) {
+	id := strconv.Itoa(repo.userCount)
+	repo.users = append(repo.users, domain.User{
+		Id:       id,
+		Username: username,
+		Hash:     shared.GeneratePasswordHash(password),
+		Role:     role,
+	})
+	repo.userCount += 1
 }

@@ -1,6 +1,9 @@
 package usercase
 
-import "privia-sec-case-study/backend/internal/domain"
+import (
+	"privia-sec-case-study/backend/internal/domain"
+	"privia-sec-case-study/shared"
+)
 
 type UserUsecase struct {
 	repository domain.UserRepository
@@ -12,31 +15,26 @@ func NewUserUsecase(repository domain.UserRepository) *UserUsecase {
 	}
 }
 
-func (usecase *UserUsecase) GetUserWithUsernameAndHash(username string, hash string) *domain.GetUserResponse {
-	response := usecase.repository.GetAll()
+func (usecase *UserUsecase) GetUserWithUsernameAndPassword(username string, password string) *domain.GetUserResponse {
+	response := usecase.repository.GetByUsername(username)
 	if response.IsNotSuccess() {
 		return &domain.GetUserResponse{
 			StatusModel: response.StatusModel,
 		}
 	}
 
-	users := response.Users
-	for _, user := range users {
-		if user.Username != username {
-			continue
-		}
+	user := response.User
+	isValidPassword := shared.ComparePasswordAndHash(password, user.Hash)
 
-		if user.Hash != hash {
-			continue
-		}
-
+	if isValidPassword {
 		return &domain.GetUserResponse{
-			StatusModel: domain.StatusSuccess(),
+			StatusModel: shared.StatusSuccess(),
 			User:        user,
 		}
 	}
 
 	return &domain.GetUserResponse{
-		StatusModel: domain.StatusNotFound(),
+		StatusModel: shared.StatusUnauthorized(),
+		Message:     "Wrong credentials",
 	}
 }

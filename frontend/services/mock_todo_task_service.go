@@ -3,6 +3,7 @@ package services
 import (
 	"privia-sec-case-study/frontend/common"
 	"privia-sec-case-study/frontend/models"
+	"privia-sec-case-study/shared"
 	"strconv"
 	"time"
 )
@@ -119,7 +120,7 @@ func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(todoListId stri
 	}
 
 	return &models.TodoTaskGetAllResponseModel{
-		StatusModel: models.StatusSuccess(),
+		StatusModel: shared.StatusSuccess(),
 		Message:     "Tasks retrieved successfully",
 		TodoTasks:   filtered,
 	}
@@ -136,7 +137,7 @@ func (service *MockTodoTaskService) AddWithListIdAndContent(todoListId string, c
 	userId := common.GetAuthUserId(service.ServiceManager.Context)
 	if userId != todoListResponse.TodoList.UserId {
 		return &models.TodoTaskGetResponseModel{
-			StatusModel: models.StatusForbidden(),
+			StatusModel: shared.StatusForbidden(),
 		}
 	}
 
@@ -163,7 +164,7 @@ func (service *MockTodoTaskService) AddWithListIdAndContent(todoListId string, c
 	}
 
 	return &models.TodoTaskGetResponseModel{
-		StatusModel: models.StatusSuccess(),
+		StatusModel: shared.StatusSuccess(),
 		Message:     "todo task added",
 		TodoTask:    service.TodoTasks[service.TodoTaskCount-1],
 	}
@@ -186,7 +187,7 @@ func (service *MockTodoTaskService) DeleteById(id string) *models.TodoTaskGetRes
 			userId := common.GetAuthUserId(service.ServiceManager.Context)
 			if userId != todoListResponse.TodoList.UserId {
 				return &models.TodoTaskGetResponseModel{
-					StatusModel: models.StatusForbidden(),
+					StatusModel: shared.StatusForbidden(),
 				}
 			}
 
@@ -208,7 +209,7 @@ func (service *MockTodoTaskService) DeleteById(id string) *models.TodoTaskGetRes
 			}
 
 			return &models.TodoTaskGetResponseModel{
-				StatusModel: models.StatusSuccess(),
+				StatusModel: shared.StatusSuccess(),
 				Message:     "todo task deleted",
 				TodoTask:    service.TodoTasks[i],
 			}
@@ -216,7 +217,7 @@ func (service *MockTodoTaskService) DeleteById(id string) *models.TodoTaskGetRes
 	}
 
 	return &models.TodoTaskGetResponseModel{
-		StatusModel: models.StatusNotFound(),
+		StatusModel: shared.StatusNotFound(),
 		Message:     "todo task not found or already deleted",
 	}
 }
@@ -238,7 +239,7 @@ func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.Tod
 			userId := common.GetAuthUserId(service.ServiceManager.Context)
 			if userId != todoListResponse.TodoList.UserId {
 				return &models.TodoTaskGetResponseModel{
-					StatusModel: models.StatusForbidden(),
+					StatusModel: shared.StatusForbidden(),
 				}
 			}
 
@@ -260,7 +261,7 @@ func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.Tod
 			}
 
 			return &models.TodoTaskGetResponseModel{
-				StatusModel: models.StatusSuccess(),
+				StatusModel: shared.StatusSuccess(),
 				Message:     "todo task updated",
 				TodoTask:    service.TodoTasks[i],
 			}
@@ -268,7 +269,7 @@ func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.Tod
 	}
 
 	return &models.TodoTaskGetResponseModel{
-		StatusModel: models.StatusNotFound(),
+		StatusModel: shared.StatusNotFound(),
 		Message:     "todo task not found or already deleted",
 	}
 }
@@ -290,14 +291,14 @@ func (service *MockTodoTaskService) UpdateContentById(id string, content string)
 			userId := common.GetAuthUserId(service.ServiceManager.Context)
 			if userId != todoListResponse.TodoList.UserId {
 				return &models.TodoTaskGetResponseModel{
-					StatusModel: models.StatusForbidden(),
+					StatusModel: shared.StatusForbidden(),
 				}
 			}
 
 			service.TodoTasks[i].Content = string([]byte(content)) // to fix fiber.Ctx.BodyParser bug
 
 			return &models.TodoTaskGetResponseModel{
-				StatusModel: models.StatusSuccess(),
+				StatusModel: shared.StatusSuccess(),
 				Message:     "todo task content updated",
 				TodoTask:    service.TodoTasks[i],
 			}
@@ -305,7 +306,7 @@ func (service *MockTodoTaskService) UpdateContentById(id string, content string)
 	}
 
 	return &models.TodoTaskGetResponseModel{
-		StatusModel: models.StatusNotFound(),
+		StatusModel: shared.StatusNotFound(),
 		Message:     "todo task not found",
 	}
 }

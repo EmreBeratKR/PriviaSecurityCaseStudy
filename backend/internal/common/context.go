@@ -2,60 +2,65 @@ package common
 
 import (
 	"privia-sec-case-study/backend/internal/domain"
+	"privia-sec-case-study/shared"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func SendStatusOkWithValue(value any, context *fiber.Ctx) error {
-	return context.Status(fiber.StatusBadRequest).JSON(domain.ValueResponseOk(value))
+	return context.Status(fiber.StatusOK).JSON(domain.ValueResponseOk(value))
 }
 
-func SendErrorStatus(status string, context *fiber.Ctx) error {
-	if status == domain.StatusBadRequest().Status {
-		return SendStatusBadRequest(context)
+func SendErrorStatus(status string, message string, context *fiber.Ctx) error {
+	if status == shared.StatusBadRequest().Status {
+		return SendStatusBadRequest(context, message)
 	}
 
-	if status == domain.StatusForbidden().Status {
-		return SendStatusForbidden(context)
+	if status == shared.StatusUnauthorized().Status {
+		return SendStatusUnauthorized(context, message)
 	}
 
-	if status == domain.StatusNotFound().Status {
-		return SendStatusNotFound(context)
+	if status == shared.StatusForbidden().Status {
+		return SendStatusForbidden(context, message)
 	}
 
-	if status == domain.StatusInternalServerError().Status {
-		return SendStatusInternalServerError(context)
+	if status == shared.StatusNotFound().Status {
+		return SendStatusNotFound(context, message)
 	}
 
-	return SendStatusInternalServerError(context)
+	if status == shared.StatusInternalServerError().Status {
+		return SendStatusInternalServerError(context, message)
+	}
+
+	return SendStatusInternalServerError(context, message)
 }
 
-func SendStatusBadRequest(context *fiber.Ctx) error {
+func SendStatusBadRequest(context *fiber.Ctx, message string) error {
 	return context.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-		"message": "400 - Bad Request",
+		"message": message,
 	})
 }
 
-func SendStatusUnauthorized(context *fiber.Ctx) error {
+func SendStatusUnauthorized(context *fiber.Ctx, message string) error {
 	return context.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-		"message": "401 - Unauthorized",
+		"message": message,
 	})
 }
 
-func SendStatusForbidden(context *fiber.Ctx) error {
+func SendStatusForbidden(context *fiber.Ctx, message string) error {
 	return context.Status(fiber.StatusForbidden).JSON(fiber.Map{
-		"message": "403 - Forbidden",
+		"message": message,
 	})
 }
 
-func SendStatusNotFound(context *fiber.Ctx) error {
+func SendStatusNotFound(context *fiber.Ctx, message string) error {
 	return context.Status(fiber.StatusNotFound).JSON(fiber.Map{
-		"message": "404 - Not Found",
+		"message": message,
 	})
 }
 
-func SendStatusInternalServerError(context *fiber.Ctx) error {
+func SendStatusInternalServerError(context *fiber.Ctx, message string) error {
 	return context.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-		"message": "500 - Internal Server Error",
+		"message": message,
 	})
 }

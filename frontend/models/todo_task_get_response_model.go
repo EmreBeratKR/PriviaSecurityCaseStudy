@@ -1,7 +1,9 @@
 package models
 
+import "privia-sec-case-study/shared"
+
 type TodoTaskGetResponseModel struct {
-	StatusModel
+	shared.StatusModel
 	Message  string        `json:"message"`
 	TodoTask TodoTaskModel `json:"todo_task"`
 }

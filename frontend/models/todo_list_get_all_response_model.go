@@ -1,7 +1,9 @@
 package models
 
+import "privia-sec-case-study/shared"
+
 type TodoListGetAllResponseModel struct {
-	StatusModel
+	shared.StatusModel
 	Message   string          `json:"message"`
 	TodoLists []TodoListModel `json:"todo_lists"`
 }
