@@ -5,13 +5,16 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY frontend/ ./frontend/
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/frontend ./frontend/main.go
+COPY shared/ ./shared/
+RUN CGO_ENABLED=0 GOOS=linux go build -o ./frontend/main ./frontend/main.go
 
 # Final Stage
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
 WORKDIR /app
-COPY --from=builder /app/frontend .
+COPY --from=builder /app/frontend/public .
+COPY --from=builder /app/frontend/views .
+COPY --from=builder /app/frontend/main .
 EXPOSE 8080
-CMD ["./frontend/main"]
+CMD ["./main"]
