@@ -5,13 +5,13 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/backend ./backend/cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/frontend ./frontend/cmd/main.go
 
 # Final Stage
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
-COPY --from=builder /app/bin/backend .
+COPY --from=builder /app/bin/frontend .
 EXPOSE 8080
-CMD ["./backend"]
+CMD ["./frontend"]
