@@ -16,7 +16,6 @@ This project was developed as a case study for **Privia Security**.
 - [Fullstack Architecture](#fullstack-architecture)
 - [Frontend](#frontend)
 - [Backend](#backend)
-- [Project Structure](#project-structure)
 - [Deployment](#deployment)
 - [License](#license)
 
@@ -40,14 +39,14 @@ Below is the list of predefined users in the system:
 
 ---
 
-## 🧠 Overview
+## Overview
 
 **Emrello** is a fullstack web application built with Go using the Fiber framework on both frontend and backend.  
 It offers a seamless task management experience where users can create and manage multiple todo lists and tasks. The system also includes admin-level functionality for viewing other users' todo lists.
 
 ---
 
-## ✅ Features
+## Features
 
 - Create and delete todo lists
 - Add and delete tasks within a list
@@ -58,7 +57,7 @@ It offers a seamless task management experience where users can create and manag
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Language**: Go
 - **Framework**: Fiber
@@ -68,7 +67,7 @@ It offers a seamless task management experience where users can create and manag
 
 ---
 
-## 🏗 Fullstack Architecture
+## Fullstack Architecture
 
 The application follows a **modular architecture**, keeping the frontend and backend logically separated while sharing the same codebase and Fiber server.
 
@@ -80,7 +79,7 @@ The application follows a **modular architecture**, keeping the frontend and bac
 
 ---
 
-## 🎨 Frontend
+## Frontend
 
 The frontend is entirely written using **Go’s html/template package**, avoiding JavaScript altogether. The user experience is achieved through classic HTML form submissions and conditional rendering.
 
@@ -193,7 +192,7 @@ The frontend is entirely written using **Go’s html/template package**, avoidin
 
 ---
 
-## ⚙️ Backend
+## Backend
 
 The backend is a RESTful API built with **Go and Fiber**, following **Clean Architecture** principles.
 
@@ -773,7 +772,7 @@ This design ensures that the domain logic is highly cohesive, maintainable, and 
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 The application is deployed on **[Render.com](https://render.com)**.
 
@@ -783,6 +782,6 @@ The application is deployed on **[Render.com](https://render.com)**.
 
 ---
 
-## 📄 License
+## License
 
-This project is for demonstration purposes as part of a case study and is not currently under an open-source license.
+This project is licensed under the MIT License.
