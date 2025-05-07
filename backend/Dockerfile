@@ -4,14 +4,15 @@ FROM golang:1.24-alpine AS builder
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/backend ./backend/cmd/main.go
+COPY backend/ ./backend/
+COPY shared/ ./shared/
+RUN CGO_ENABLED=0 GOOS=linux go build -o ./backend/main ./backend/main.go
 
 # Final Stage
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-COPY --from=builder /app/bin/backend .
+WORKDIR /app
+COPY --from=builder /app/backend/main .
 EXPOSE 8080
-CMD ["./backend"]
+CMD ["./main"]
