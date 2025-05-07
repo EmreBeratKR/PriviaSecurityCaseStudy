@@ -2,18 +2,16 @@
 FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
-RUN apk --no-cache add ca-certificates
 COPY go.mod go.sum ./
-RUN go mod tidy
-COPY backend/ /app/
-WORKDIR /app/backend/cmd
-RUN go build -o todo-backend .
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/backend ./backend/cmd/main.go
 
 # Final Stage
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
-COPY --from=builder /app/backend/cmd/todo-backend /root/
+COPY --from=builder /app/bin/backend .
 EXPOSE 8080
-CMD ["./todo-backend"]
+CMD ["./backend"]
