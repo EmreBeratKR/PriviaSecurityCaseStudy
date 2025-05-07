@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Server Error</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: #1e293b;
+    }
+
+    .error-container {
+      text-align: center;
+      padding: 2rem;
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .error-code {
+      font-size: 5rem;
+      font-weight: bold;
+      color: #ef4444;
+    }
+
+    .error-message {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .error-description {
+      font-size: 1rem;
+      color: #64748b;
+    }
+
+    .home-link {
+      margin-top: 2rem;
+      display: inline-block;
+      text-decoration: none;
+      background-color: #3b82f6;
+      color: white;
+      padding: 0.5rem 1.5rem;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+
+    .home-link:hover {
+      background-color: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="error-container">
+    <div class="error-code">500</div>
+    <div class="error-message">Internal Server Error</div>
+    <div class="error-description">Oops! Something went wrong on our end.<br>Please try again later.</div>
+    <a href="/" class="home-link">Back to Home</a>
+  </div>
+</body>
+</html>

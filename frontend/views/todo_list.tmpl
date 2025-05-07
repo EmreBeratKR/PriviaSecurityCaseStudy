@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "head" .}}
+<body>
+<div class="main-container">
+  {{template "top_bar" .}}
+
+  <div class="todo-list-container">
+    <div style="display: inline-flex; align-items: center;">
+      <a href="/">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 22 22" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left-icon lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+      </a>
+      {{if .IsEdittingListName}}
+        <form id="edit-list-name-form" method="POST" action="todo-list/patch">
+          <input name="id" value="{{.TodoListId}}" hidden>
+          <input class="title-input" name="name" maxlength="20" type="text" placeholder="Enter name here" value="{{.Name}}" required autofocus onfocus="this.select()" onblur="document.getElementById('edit-list-name-form').submit()">
+          <button type="submit" hidden></button>
+        </form>
+      {{else}}
+        {{if .AllowEditting}}
+          <a class="title" href="/todo-list?id={{.TodoListId}}&edit_name=1">{{.Name}}</a>
+          {{else}}
+          <div class="title disabled">{{.Name}}</div>
+        {{end}}
+      {{end}}
+    </div>
+
+    {{if .AllowEditting}}
+    <form method="POST" action="todo-task">
+      <input type="hidden" name="list_id" value="{{.TodoListId}}">
+      <div class="input-row">
+        <input id="task-content-input" name="content" type="text" placeholder="Enter task here" required {{if .IsNotEdittingTodoTask}}autofocus{{end}}>
+        <button type="submit">Add</button>
+      </div>
+    </form>
+    {{else}}
+    <div class="input-row">
+      <input disabled placeholder="🔒locked">
+      <button disabled>Add</button>
+    </div>
+    {{end}}
+
+    <div class="progress-bar-wrapper">
+      <div class="progress-bar">
+        <div class="progress-bar-fill" style="width: {{.CompletionPercent}}%"></div>
+      </div>
+    </div>
+    <div class="progress-text">{{.CompletionPercent}}% completed</div>
+    <div class="todo-tasks">
+      {{range .TodoTasks}}
+        {{template "todo_task_card" .}}
+      {{end}}
+      {{if .IsTodoTasksEmpty}}
+        {{template "empty_todo_task_card" .}}
+      {{end}}
+    </div>
+  </div>
+
+  {{if .IsEdittingTodoTask}}
+    <div class="modal-overlay">
+      <div class="modal">
+        <form method="GET" action="/todo-list">
+          <input type="hidden" name="id" value="{{.TodoListId}}">
+          <button class="modal-header">
+            <span class="close-btn">&times;</span>
+          </button>
+        </form>
+        <div class="modal-footer">
+          <h2>Edit Todo Task</h2>
+          <form method="POST" action="/todo-task/patch?redirect_id={{.TodoListId}}">
+            <input name="id" value="{{.EditTodoTaskId}}" hidden>
+            <input name="action" value="edit" hidden>
+            <div class="modal-body">
+              <input name="content" type="text" placeholder="Edit task here" required autofocus value="{{.EditTaskContent}}" onfocus="this.select()">
+            </div>
+            <button class="modal-btn" type="submit">Save</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  {{end}}
+</div>
+{{template "footer" .}}
+</body>
+</html>

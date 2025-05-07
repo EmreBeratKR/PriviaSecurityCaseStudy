@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "head" .}}
+<body>
+
+  <div class="main-container">
+    {{template "top_bar" .}}
+
+    <div class="content">
+      <div class="title-bar">
+        <h1>Your Todo Lists</h1>
+        {{if .IsTodoListsEmpty}}
+        {{else}}
+          <form method="GET" action="">
+            <input hidden name="create" value="1">
+            <button type="submit" class="create-btn">+ New List</button>
+          </form>
+        {{end}}
+      </div>
+      <div class="scroll-area">
+          {{range .TodoLists}}
+              {{template "todo_list_card" .}}
+          {{end}}
+          {{if .IsTodoListsEmpty}}
+            {{template "empty_todo_list_card" .}}
+          {{end}}
+      </div>
+    </div>
+
+    {{if .IsAdmin}}
+    <div class="content">
+      <div class="title-bar">
+        <h1>Other's Todo Lists</h1>
+      </div>
+      <div class="scroll-area">
+          {{range .OthersTodoLists}}
+              {{template "todo_list_card" .}}
+          {{end}}
+          {{if .IsOtherTodoListsEmpty}}
+            {{template "empty_others_todo_list_card" .}}
+          {{end}}
+      </div>
+    </div>
+    {{end}}
+
+    {{if .IsCreatingNewList}}
+      <div class="modal-overlay">
+        <div class="modal">
+          <h2>Create New Todo List</h2>
+          <form method="GET" action="">
+            <button class="modal-header">
+              <span class="close-btn">&times;</span>
+            </button>
+          </form>
+          <div class="modal-footer">
+            <form method="POST" action="/todo-list">
+              <div class="modal-body">
+                <input name="user_id" value="{{.UserId}}" hidden>
+                <input name="name" maxlength="20" type="text" placeholder="Enter todo list name" required autofocus value="New Todo List" onfocus="this.select()">
+              </div>
+              <button class="modal-btn" type="submit">Confirm</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {{end}}
+  </div>
+{{template "footer" .}}
+</body>
+</html>
