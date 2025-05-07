@@ -13,8 +13,8 @@ FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
 WORKDIR /app
-COPY --from=builder /app/frontend/public .
-COPY --from=builder /app/frontend/views .
+COPY --from=builder /app/frontend/public ./public
+COPY --from=builder /app/frontend/views ./views
 COPY --from=builder /app/frontend/main .
 EXPOSE 8080
 CMD ["./main"]
