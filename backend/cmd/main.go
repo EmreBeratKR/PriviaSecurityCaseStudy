@@ -30,6 +30,7 @@ func main() {
 	todoTaskUsecase := concrete_usecases.NewDefaultTodoTaskUsecase(todoListRepository, todoTaskRepository)
 	todoTaskHandler := concrete_handlers.NewDefaultTodoTaskHandler(todoListUsecase, todoTaskUsecase)
 
+	router.MapHealthRouter(app)
 	router.MapUserRoutes(app, userHandler)
 	router.MapTodoListRouter(app, todoListHandler)
 	router.MapTodoTaskRoutes(app, todoTaskHandler)

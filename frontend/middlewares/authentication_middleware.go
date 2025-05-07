@@ -7,6 +7,10 @@ import (
 )
 
 func AuthenticationMiddleware(context *fiber.Ctx) error {
+	if context.Path() == "/health" {
+		return context.Next()
+	}
+
 	isLoginPage := context.Path() == "/login"
 	isAuthenticated := common.IsAuthenticated(context)
 
