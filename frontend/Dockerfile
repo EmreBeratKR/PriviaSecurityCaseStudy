@@ -13,7 +13,7 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
-COPY --from=builder /app/bin/frontend .
+COPY --from=builder /app/frontend .
 COPY --from=builder /app/frontend/public ./public
 COPY --from=builder /app/frontend/views ./views
 
