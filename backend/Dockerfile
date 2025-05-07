@@ -6,10 +6,8 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod tidy
 
-COPY . .
-
+COPY backend/ /app/
 RUN go build -o todo-backend .
-
 
 #2 Final Stage
 FROM alpine:latest
