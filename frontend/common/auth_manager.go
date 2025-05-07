@@ -1,20 +1,18 @@
 package common
 
 import (
-	"os"
 	"privia-sec-case-study/frontend/models"
 	"privia-sec-case-study/shared"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
 )
 
 func Login(context *fiber.Ctx, response *models.LoginResponseModel) {
 	context.Cookie(&fiber.Cookie{
 		Name:     getAuthCookieName(),
 		Value:    response.Token,
-		Expires:  response.ExpiresAt,
+		Expires:  shared.CalculateJWTExpireTime(),
 		HTTPOnly: true,
 		Secure:   shared.IsProductionEnvironment(),
 		SameSite: "Lax",
@@ -76,26 +74,17 @@ func GetAuthUsername(context *fiber.Ctx) string {
 	return claims.Username
 }
 
-func GetUserClaims(context *fiber.Ctx) *models.UserClaims {
-	tokenStr := context.Cookies(getAuthCookieName())
+func GetUserClaims(context *fiber.Ctx) *shared.UserClaims {
+	tokenStr := GetJWTFromCookies(context)
 	if tokenStr == "" {
 		return nil
 	}
 
-	token, err := jwt.ParseWithClaims(tokenStr, &models.UserClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
+	return shared.GetUserClaims(tokenStr)
+}
 
-	if err != nil || !token.Valid {
-		return nil
-	}
-
-	claims, ok := token.Claims.(*models.UserClaims)
-	if !ok {
-		return nil
-	}
-
-	return claims
+func GetJWTFromCookies(context *fiber.Ctx) string {
+	return context.Cookies(getAuthCookieName())
 }
 
 func getAuthCookieName() string {

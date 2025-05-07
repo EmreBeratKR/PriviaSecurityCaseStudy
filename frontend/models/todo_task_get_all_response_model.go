@@ -1,9 +1,11 @@
 package models
 
+import "privia-sec-case-study/shared"
+
 type TodoTaskGetAllResponseModel struct {
-	StatusModel
+	shared.StatusModel
 	Message   string          `json:"message"`
-	TodoTasks []TodoTaskModel `json:"todo_tasks"`
+	TodoTasks []TodoTaskModel `json:"value"`
 }
 
 func (response *TodoTaskGetAllResponseModel) IsSuccess() bool {

@@ -13,16 +13,12 @@ type LoginController struct {
 }
 
 func (controller *LoginController) LoginControllerGet(context *fiber.Ctx) error {
-	controller.ServiceManager.SetContext(context)
-
 	return context.Render("login", fiber.Map{
 		"HideUserInfo": true,
 	})
 }
 
 func (controller *LoginController) LoginControllerPost(context *fiber.Ctx) error {
-	controller.ServiceManager.SetContext(context)
-
 	loginRequest, parseSuccess := controller.tryParseLoginRequest(context)
 
 	if !parseSuccess {
@@ -33,7 +29,7 @@ func (controller *LoginController) LoginControllerPost(context *fiber.Ctx) error
 		return common.SendStatusBadRequest(context)
 	}
 
-	response := controller.sendLoginRequest(loginRequest)
+	response := controller.sendLoginRequest(context, loginRequest)
 
 	if response.IsNotSuccess() {
 		return context.Render("login", fiber.Map{
@@ -58,6 +54,6 @@ func (controller *LoginController) tryParseLoginRequest(context *fiber.Ctx) (*mo
 	return &loginRequest, true
 }
 
-func (controller *LoginController) sendLoginRequest(request *models.LoginRequestModel) *models.LoginResponseModel {
-	return controller.ServiceManager.UserService.Login(request)
+func (controller *LoginController) sendLoginRequest(context *fiber.Ctx, request *models.LoginRequestModel) *models.LoginResponseModel {
+	return controller.ServiceManager.UserService.Login(context, request)
 }

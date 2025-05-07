@@ -1,10 +1,11 @@
 package models
 
-import "time"
+import (
+	"privia-sec-case-study/shared"
+)
 
 type LoginResponseModel struct {
-	StatusModel
-	Message   string    `json:"message"`
-	Token     string    `json:"token"`
-	ExpiresAt time.Time `json:"expiresAt"`
+	shared.StatusModel
+	Message string `json:"message"`
+	Token   string `json:"value"`
 }

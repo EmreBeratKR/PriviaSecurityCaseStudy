@@ -12,8 +12,6 @@ type TodoTaskController struct {
 }
 
 func (controller *TodoTaskController) TodoTaskControllerPost(context *fiber.Ctx) error {
-	controller.ServiceManager.SetContext(context)
-
 	listId := context.FormValue("list_id")
 	if listId == "" {
 		return common.SendStatusBadRequest(context)
@@ -24,7 +22,7 @@ func (controller *TodoTaskController) TodoTaskControllerPost(context *fiber.Ctx)
 		return common.SendStatusBadRequest(context)
 	}
 
-	response := controller.ServiceManager.TodoTaskService.AddWithListIdAndContent(listId, content)
+	response := controller.ServiceManager.TodoTaskService.AddWithListIdAndContent(context, listId, content)
 	if response.IsNotSuccess() {
 		return common.SendErrorStatus(response.Status, context)
 	}
@@ -33,8 +31,6 @@ func (controller *TodoTaskController) TodoTaskControllerPost(context *fiber.Ctx)
 }
 
 func (controller *TodoTaskController) TodoTaskControllerPatch(context *fiber.Ctx) error {
-	controller.ServiceManager.SetContext(context)
-
 	id := context.FormValue("id")
 	if id == "" {
 		return common.SendStatusBadRequest(context)
@@ -54,14 +50,12 @@ func (controller *TodoTaskController) TodoTaskControllerPatch(context *fiber.Ctx
 }
 
 func (controller *TodoTaskController) TodoTaskControllerDelete(context *fiber.Ctx) error {
-	controller.ServiceManager.SetContext(context)
-
 	id := context.FormValue("id")
 	if id == "" {
 		return common.SendStatusBadRequest(context)
 	}
 
-	response := controller.ServiceManager.TodoTaskService.DeleteById(id)
+	response := controller.ServiceManager.TodoTaskService.DeleteById(context, id)
 
 	if response.IsNotSuccess() {
 		return common.SendErrorStatus(response.Status, context)
@@ -71,7 +65,7 @@ func (controller *TodoTaskController) TodoTaskControllerDelete(context *fiber.Ct
 }
 
 func (controller *TodoTaskController) sendPatchToggle(context *fiber.Ctx, id string) error {
-	response := controller.ServiceManager.TodoTaskService.ToggleIsCompletedById(id)
+	response := controller.ServiceManager.TodoTaskService.ToggleIsCompletedById(context, id)
 
 	if response.IsNotSuccess() {
 		return common.SendErrorStatus(response.Status, context)
@@ -86,7 +80,7 @@ func (controller *TodoTaskController) sendPatchEdit(context *fiber.Ctx, id strin
 		return common.SendStatusBadRequest(context)
 	}
 
-	response := controller.ServiceManager.TodoTaskService.UpdateContentById(id, content)
+	response := controller.ServiceManager.TodoTaskService.UpdateContentById(context, id, content)
 
 	if response.IsNotSuccess() {
 		return common.SendErrorStatus(response.Status, context)

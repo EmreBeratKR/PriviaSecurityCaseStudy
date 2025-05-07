@@ -1,13 +1,11 @@
 package services
 
 import (
-	"os"
 	"privia-sec-case-study/frontend/models"
 	"privia-sec-case-study/shared"
 	"strconv"
-	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/gofiber/fiber/v2"
 )
 
 type MockUserService struct {
@@ -16,34 +14,37 @@ type MockUserService struct {
 	UserCount      int
 }
 
-func (service *MockUserService) Init() {
+func NewMockUserService(serviceManager *ServiceManager) *MockUserService {
+	service := &MockUserService{
+		ServiceManager: serviceManager,
+	}
+
 	service.UserCount = 0
 	service.createUser("Emre", "1234", "user")
 	service.createUser("Berat", "1234", "admin")
+
+	return service
 }
 
-func (service *MockUserService) Login(request *models.LoginRequestModel) *models.LoginResponseModel {
+func (service *MockUserService) Login(context *fiber.Ctx, request *models.LoginRequestModel) *models.LoginResponseModel {
 	for _, user := range service.Users {
 		if user.Username != request.Username {
 			continue
 		}
 
 		if shared.ComparePasswordAndHash(request.Password, user.Hash) {
-			expireAt := calculateJWTExpireTime()
 			return &models.LoginResponseModel{
-				StatusModel: models.StatusSuccess(),
-				Message:     "Welcome back, " + user.Username,
-				Token: createJWT(expireAt, models.UserClaims{
+				StatusModel: shared.StatusSuccess(),
+				Token: shared.CreateJWT(shared.UserClaims{
 					Username: request.Username,
 					Role:     user.Role,
 				}, user.Id),
-				ExpiresAt: expireAt,
 			}
 		}
 	}
 
 	return &models.LoginResponseModel{
-		StatusModel: models.StatusNotFound(),
+		StatusModel: shared.StatusUnauthorized(),
 		Message:     "Wrong credentials",
 	}
 }
@@ -57,30 +58,4 @@ func (service *MockUserService) createUser(username string, password string, rol
 		Role:     role,
 	})
 	service.UserCount += 1
-}
-
-func calculateJWTExpireTime() time.Time {
-	return time.Now().Add(24 * time.Hour)
-}
-
-func getJWTSecret() []byte {
-	return []byte(os.Getenv("JWT_SECRET"))
-}
-
-func createJWT(expireAt time.Time, claims models.UserClaims, subject string) string {
-	secret := getJWTSecret()
-	claims.RegisteredClaims = jwt.RegisteredClaims{
-		Subject:   subject,
-		Issuer:    "Mock User Service",
-		ExpiresAt: jwt.NewNumericDate(expireAt),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString(secret)
-
-	if err != nil {
-		return ""
-	}
-
-	return signedToken
 }

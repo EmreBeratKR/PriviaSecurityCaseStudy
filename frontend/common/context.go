@@ -1,7 +1,7 @@
 package common
 
 import (
-	"privia-sec-case-study/frontend/models"
+	"privia-sec-case-study/shared"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -19,19 +19,23 @@ func RedirectToTodoListPageById(context *fiber.Ctx, id string) error {
 }
 
 func SendErrorStatus(status string, context *fiber.Ctx) error {
-	if status == models.StatusBadRequest().Status {
+	if status == shared.StatusBadRequest().Status {
 		return SendStatusBadRequest(context)
 	}
 
-	if status == models.StatusForbidden().Status {
+	if status == shared.StatusForbidden().Status {
 		return SendStatusForbidden(context)
 	}
 
-	if status == models.StatusNotFound().Status {
+	if status == shared.StatusForbidden().Status {
+		return SendStatusForbidden(context)
+	}
+
+	if status == shared.StatusNotFound().Status {
 		return SendStatusNotFound(context)
 	}
 
-	if status == models.StatusInternalServerError().Status {
+	if status == shared.StatusInternalServerError().Status {
 		return SendStatusInternalServerError(context)
 	}
 
@@ -40,6 +44,10 @@ func SendErrorStatus(status string, context *fiber.Ctx) error {
 
 func SendStatusBadRequest(context *fiber.Ctx) error {
 	return context.Status(fiber.StatusBadRequest).Render("bad_request", fiber.Map{})
+}
+
+func SendStatusUnauthorized(context *fiber.Ctx) error {
+	return context.Status(fiber.StatusForbidden).Render("unauthorized", fiber.Map{})
 }
 
 func SendStatusForbidden(context *fiber.Ctx) error {

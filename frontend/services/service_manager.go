@@ -1,36 +1,31 @@
 package services
 
 import (
+	"os"
 	"privia-sec-case-study/frontend/interfaces"
-
-	"github.com/gofiber/fiber/v2"
+	"privia-sec-case-study/shared"
 )
 
 type ServiceManager struct {
 	UserService     interfaces.UserService
 	TodoListService interfaces.TodoListService
 	TodoTaskService interfaces.TodoTaskService
-	Context         *fiber.Ctx
 }
 
-func MockServiceManager() *ServiceManager {
+func NewServiceManager() *ServiceManager {
+	if shared.IsDevelopmentEnvironment() {
+		return newServiceManagerWithMockServices()
+	}
+
+	return newServiceManagerWithApiServices()
+}
+
+func newServiceManagerWithMockServices() *ServiceManager {
 	serviceManager := &ServiceManager{}
 
-	userService := &MockUserService{
-		ServiceManager: serviceManager,
-	}
-	userService.Init()
-
-	todoListService := &MockTodoListService{
-		ServiceManager: serviceManager,
-	}
-	todoListService.Init()
-
-	todoTaskService := &MockTodoTaskService{
-		ServiceManager:  serviceManager,
-		TodoListService: todoListService,
-	}
-	todoTaskService.Init()
+	userService := NewMockUserService(serviceManager)
+	todoListService := NewMockTodoListService(serviceManager)
+	todoTaskService := NewMockTodoTaskService(serviceManager, todoListService)
 
 	serviceManager.UserService = userService
 	serviceManager.TodoListService = todoListService
@@ -39,6 +34,17 @@ func MockServiceManager() *ServiceManager {
 	return serviceManager
 }
 
-func (manager *ServiceManager) SetContext(context *fiber.Ctx) {
-	manager.Context = context
+func newServiceManagerWithApiServices() *ServiceManager {
+	serviceManager := &ServiceManager{}
+
+	apiUrl := os.Getenv("API_URL")
+	userService := NewApiUserService(apiUrl)
+	todoListService := NewApiTodoListService(apiUrl)
+	todoTaskService := NewApiTodoTaskService(apiUrl)
+
+	serviceManager.UserService = userService
+	serviceManager.TodoListService = todoListService
+	serviceManager.TodoTaskService = todoTaskService
+
+	return serviceManager
 }

@@ -1,7 +1,31 @@
-package domain
+package shared
 
 type StatusModel struct {
 	Status string `json:"status"`
+}
+
+func StatusFromCode(code int) StatusModel {
+	if code == 200 {
+		return StatusSuccess()
+	}
+
+	if code == 400 {
+		return StatusBadRequest()
+	}
+
+	if code == 401 {
+		return StatusUnauthorized()
+	}
+
+	if code == 403 {
+		return StatusForbidden()
+	}
+
+	if code == 404 {
+		return StatusNotFound()
+	}
+
+	return StatusInternalServerError()
 }
 
 func StatusSuccess() StatusModel {
@@ -10,6 +34,10 @@ func StatusSuccess() StatusModel {
 
 func StatusBadRequest() StatusModel {
 	return StatusModel{Status: "bad_request"}
+}
+
+func StatusUnauthorized() StatusModel {
+	return StatusModel{Status: "unauthorized"}
 }
 
 func StatusForbidden() StatusModel {

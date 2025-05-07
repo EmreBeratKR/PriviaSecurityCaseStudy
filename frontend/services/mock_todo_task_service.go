@@ -3,8 +3,11 @@ package services
 import (
 	"privia-sec-case-study/frontend/common"
 	"privia-sec-case-study/frontend/models"
+	"privia-sec-case-study/shared"
 	"strconv"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type MockTodoTaskService struct {
@@ -14,7 +17,11 @@ type MockTodoTaskService struct {
 	TodoTaskCount   int
 }
 
-func (service *MockTodoTaskService) Init() {
+func NewMockTodoTaskService(serviceManager *ServiceManager, todoListService *MockTodoListService) *MockTodoTaskService {
+	service := &MockTodoTaskService{
+		ServiceManager:  serviceManager,
+		TodoListService: todoListService,
+	}
 	service.TodoTasks = []models.TodoTaskModel{
 		{
 			Id:          "0",
@@ -99,10 +106,11 @@ func (service *MockTodoTaskService) Init() {
 		},
 	}
 	service.TodoTaskCount = len(service.TodoTasks)
+	return service
 }
 
-func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(todoListId string) *models.TodoTaskGetAllResponseModel {
-	todoListResponse := service.TodoListService.GetNonDeletedById(todoListId)
+func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(context *fiber.Ctx, todoListId string) *models.TodoTaskGetAllResponseModel {
+	todoListResponse := service.TodoListService.GetNonDeletedById(context, todoListId)
 
 	if todoListResponse.IsNotSuccess() {
 		return &models.TodoTaskGetAllResponseModel{
@@ -119,24 +127,24 @@ func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(todoListId stri
 	}
 
 	return &models.TodoTaskGetAllResponseModel{
-		StatusModel: models.StatusSuccess(),
+		StatusModel: shared.StatusSuccess(),
 		Message:     "Tasks retrieved successfully",
 		TodoTasks:   filtered,
 	}
 }
 
-func (service *MockTodoTaskService) AddWithListIdAndContent(todoListId string, content string) *models.TodoTaskGetResponseModel {
-	todoListResponse := service.TodoListService.GetNonDeletedById(todoListId)
+func (service *MockTodoTaskService) AddWithListIdAndContent(context *fiber.Ctx, todoListId string, content string) *models.TodoTaskGetResponseModel {
+	todoListResponse := service.TodoListService.GetNonDeletedById(context, todoListId)
 	if todoListResponse.IsNotSuccess() {
 		return &models.TodoTaskGetResponseModel{
 			StatusModel: todoListResponse.StatusModel,
 		}
 	}
 
-	userId := common.GetAuthUserId(service.ServiceManager.Context)
+	userId := common.GetAuthUserId(context)
 	if userId != todoListResponse.TodoList.UserId {
 		return &models.TodoTaskGetResponseModel{
-			StatusModel: models.StatusForbidden(),
+			StatusModel: shared.StatusForbidden(),
 		}
 	}
 
@@ -163,16 +171,16 @@ func (service *MockTodoTaskService) AddWithListIdAndContent(todoListId string, c
 	}
 
 	return &models.TodoTaskGetResponseModel{
-		StatusModel: models.StatusSuccess(),
+		StatusModel: shared.StatusSuccess(),
 		Message:     "todo task added",
 		TodoTask:    service.TodoTasks[service.TodoTaskCount-1],
 	}
 }
 
-func (service *MockTodoTaskService) DeleteById(id string) *models.TodoTaskGetResponseModel {
+func (service *MockTodoTaskService) DeleteById(context *fiber.Ctx, id string) *models.TodoTaskGetResponseModel {
 	for i, todoTask := range service.TodoTasks {
 		if todoTask.Id == id {
-			todoListResponse := service.TodoListService.GetNonDeletedById(todoTask.TodoListId)
+			todoListResponse := service.TodoListService.GetNonDeletedById(context, todoTask.TodoListId)
 			if todoListResponse.IsNotSuccess() {
 				return &models.TodoTaskGetResponseModel{
 					StatusModel: todoListResponse.StatusModel,
@@ -183,10 +191,10 @@ func (service *MockTodoTaskService) DeleteById(id string) *models.TodoTaskGetRes
 				break
 			}
 
-			userId := common.GetAuthUserId(service.ServiceManager.Context)
+			userId := common.GetAuthUserId(context)
 			if userId != todoListResponse.TodoList.UserId {
 				return &models.TodoTaskGetResponseModel{
-					StatusModel: models.StatusForbidden(),
+					StatusModel: shared.StatusForbidden(),
 				}
 			}
 
@@ -208,7 +216,7 @@ func (service *MockTodoTaskService) DeleteById(id string) *models.TodoTaskGetRes
 			}
 
 			return &models.TodoTaskGetResponseModel{
-				StatusModel: models.StatusSuccess(),
+				StatusModel: shared.StatusSuccess(),
 				Message:     "todo task deleted",
 				TodoTask:    service.TodoTasks[i],
 			}
@@ -216,15 +224,15 @@ func (service *MockTodoTaskService) DeleteById(id string) *models.TodoTaskGetRes
 	}
 
 	return &models.TodoTaskGetResponseModel{
-		StatusModel: models.StatusNotFound(),
+		StatusModel: shared.StatusNotFound(),
 		Message:     "todo task not found or already deleted",
 	}
 }
 
-func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.TodoTaskGetResponseModel {
+func (service *MockTodoTaskService) ToggleIsCompletedById(context *fiber.Ctx, id string) *models.TodoTaskGetResponseModel {
 	for i, todoTask := range service.TodoTasks {
 		if todoTask.Id == id {
-			todoListResponse := service.TodoListService.GetNonDeletedById(todoTask.TodoListId)
+			todoListResponse := service.TodoListService.GetNonDeletedById(context, todoTask.TodoListId)
 			if todoListResponse.IsNotSuccess() {
 				return &models.TodoTaskGetResponseModel{
 					StatusModel: todoListResponse.StatusModel,
@@ -235,10 +243,10 @@ func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.Tod
 				break
 			}
 
-			userId := common.GetAuthUserId(service.ServiceManager.Context)
+			userId := common.GetAuthUserId(context)
 			if userId != todoListResponse.TodoList.UserId {
 				return &models.TodoTaskGetResponseModel{
-					StatusModel: models.StatusForbidden(),
+					StatusModel: shared.StatusForbidden(),
 				}
 			}
 
@@ -260,7 +268,7 @@ func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.Tod
 			}
 
 			return &models.TodoTaskGetResponseModel{
-				StatusModel: models.StatusSuccess(),
+				StatusModel: shared.StatusSuccess(),
 				Message:     "todo task updated",
 				TodoTask:    service.TodoTasks[i],
 			}
@@ -268,15 +276,15 @@ func (service *MockTodoTaskService) ToggleIsCompletedById(id string) *models.Tod
 	}
 
 	return &models.TodoTaskGetResponseModel{
-		StatusModel: models.StatusNotFound(),
+		StatusModel: shared.StatusNotFound(),
 		Message:     "todo task not found or already deleted",
 	}
 }
 
-func (service *MockTodoTaskService) UpdateContentById(id string, content string) *models.TodoTaskGetResponseModel {
+func (service *MockTodoTaskService) UpdateContentById(context *fiber.Ctx, id string, content string) *models.TodoTaskGetResponseModel {
 	for i, todoTask := range service.TodoTasks {
 		if todoTask.Id == id {
-			todoListResponse := service.TodoListService.GetNonDeletedById(todoTask.TodoListId)
+			todoListResponse := service.TodoListService.GetNonDeletedById(context, todoTask.TodoListId)
 			if todoListResponse.IsNotSuccess() {
 				return &models.TodoTaskGetResponseModel{
 					StatusModel: todoListResponse.StatusModel,
@@ -287,17 +295,17 @@ func (service *MockTodoTaskService) UpdateContentById(id string, content string)
 				break
 			}
 
-			userId := common.GetAuthUserId(service.ServiceManager.Context)
+			userId := common.GetAuthUserId(context)
 			if userId != todoListResponse.TodoList.UserId {
 				return &models.TodoTaskGetResponseModel{
-					StatusModel: models.StatusForbidden(),
+					StatusModel: shared.StatusForbidden(),
 				}
 			}
 
 			service.TodoTasks[i].Content = string([]byte(content)) // to fix fiber.Ctx.BodyParser bug
 
 			return &models.TodoTaskGetResponseModel{
-				StatusModel: models.StatusSuccess(),
+				StatusModel: shared.StatusSuccess(),
 				Message:     "todo task content updated",
 				TodoTask:    service.TodoTasks[i],
 			}
@@ -305,7 +313,7 @@ func (service *MockTodoTaskService) UpdateContentById(id string, content string)
 	}
 
 	return &models.TodoTaskGetResponseModel{
-		StatusModel: models.StatusNotFound(),
+		StatusModel: shared.StatusNotFound(),
 		Message:     "todo task not found",
 	}
 }
