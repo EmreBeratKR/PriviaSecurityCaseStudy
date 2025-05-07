@@ -15,13 +15,15 @@ func init() {
 }
 
 func main() {
+	viewsPath := os.Getenv("FRONTEND_VIEWS_PATH")
 	serviceManager := services.NewServiceManager()
-	engine := html.New("./frontend/views", ".tmpl")
+	engine := html.New(viewsPath, ".tmpl")
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})
 
-	app.Static("/", "./frontend/public")
+	publicPath := os.Getenv("FRONTEND_PUBLIC_PATH")
+	app.Static("/", publicPath)
 
 	initializers.PreUseMiddlewares(app)
 	initializers.InitRoutes(app, serviceManager)
