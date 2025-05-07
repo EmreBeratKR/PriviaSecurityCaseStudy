@@ -5,7 +5,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/frontend ./frontend/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/frontend ./frontend/main.go
 
 # Final Stage
 FROM alpine:latest
