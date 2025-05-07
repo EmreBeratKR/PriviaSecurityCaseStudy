@@ -14,7 +14,7 @@ func Login(context *fiber.Ctx, response *models.LoginResponseModel) {
 		Value:    response.Token,
 		Expires:  shared.CalculateJWTExpireTime(),
 		HTTPOnly: true,
-		Secure:   shared.IsProductionEnvironment(),
+		Secure:   true,
 		SameSite: "Lax",
 	})
 }
