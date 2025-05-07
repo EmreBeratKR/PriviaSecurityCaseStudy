@@ -17,7 +17,11 @@ type MockTodoTaskService struct {
 	TodoTaskCount   int
 }
 
-func (service *MockTodoTaskService) Init() {
+func NewMockTodoTaskService(serviceManager *ServiceManager, todoListService *MockTodoListService) *MockTodoTaskService {
+	service := &MockTodoTaskService{
+		ServiceManager:  serviceManager,
+		TodoListService: todoListService,
+	}
 	service.TodoTasks = []models.TodoTaskModel{
 		{
 			Id:          "0",
@@ -102,6 +106,7 @@ func (service *MockTodoTaskService) Init() {
 		},
 	}
 	service.TodoTaskCount = len(service.TodoTasks)
+	return service
 }
 
 func (service *MockTodoTaskService) GetAllNonDeletedByTodoListId(context *fiber.Ctx, todoListId string) *models.TodoTaskGetAllResponseModel {

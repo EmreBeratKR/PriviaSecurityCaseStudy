@@ -4,6 +4,8 @@ import (
 	"privia-sec-case-study/frontend/models"
 	"privia-sec-case-study/shared"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type MockUserService struct {
@@ -12,13 +14,19 @@ type MockUserService struct {
 	UserCount      int
 }
 
-func (service *MockUserService) Init() {
+func NewMockUserService(serviceManager *ServiceManager) *MockUserService {
+	service := &MockUserService{
+		ServiceManager: serviceManager,
+	}
+
 	service.UserCount = 0
 	service.createUser("Emre", "1234", "user")
 	service.createUser("Berat", "1234", "admin")
+
+	return service
 }
 
-func (service *MockUserService) Login(request *models.LoginRequestModel) *models.LoginResponseModel {
+func (service *MockUserService) Login(context *fiber.Ctx, request *models.LoginRequestModel) *models.LoginResponseModel {
 	for _, user := range service.Users {
 		if user.Username != request.Username {
 			continue
