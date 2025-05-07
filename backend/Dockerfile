@@ -6,7 +6,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY backend/ ./backend/
 COPY shared/ ./shared/
-RUN CGO_ENABLED=0 GOOS=linux go build -o ./backend/main ./backend/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o ./backend/cmd/main ./backend/cmd/main.go
 
 # Final Stage
 FROM alpine:latest
