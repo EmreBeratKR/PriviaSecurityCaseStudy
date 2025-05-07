@@ -14,8 +14,15 @@ type MockUserRepository struct {
 
 func NewMockUserRepository() *MockUserRepository {
 	repo := &MockUserRepository{}
-	repo.createUser("Emre", "1234", "user")
-	repo.createUser("Berat", "1234", "admin")
+	repo.createUser("user1", "1234", "user")
+	repo.createUser("user2", "1234", "user")
+	repo.createUser("user3", "1234", "user")
+	repo.createUser("user4", "1234", "user")
+	repo.createUser("user5", "1234", "user")
+	repo.createUser("user6", "1234", "user")
+	repo.createUser("Emre", "admin1234", "admin")
+	repo.createUser("Berat", "admin1234", "admin")
+	repo.createUser("Simge", "admin1234", "admin")
 	return repo
 }
 
