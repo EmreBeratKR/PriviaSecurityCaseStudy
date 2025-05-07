@@ -9,6 +9,7 @@ This project was developed as a case study for **Privia Security**.
 
 ## 📚 Table of Contents
 
+- [Predefined Users](#predefined-users)
 - [Overview](#overview)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
@@ -18,6 +19,24 @@ This project was developed as a case study for **Privia Security**.
 - [Project Structure](#project-structure)
 - [Deployment](#deployment)
 - [License](#license)
+
+---
+
+### Predefined Users
+
+Below is the list of predefined users in the system:
+
+| **Username** | **Password**   | **Role** |
+|--------------|----------------|----------|
+| user1        | 1234           | user     |
+| user2        | 1234           | user     |
+| user3        | 1234           | user     |
+| user4        | 1234           | user     |
+| user5        | 1234           | user     |
+| user6        | 1234           | user     |
+| Emre         | admin1234      | admin    |
+| Berat        | admin1234      | admin    |
+| Simge        | admin1234      | admin    |
 
 ---
 
