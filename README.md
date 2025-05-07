@@ -3,7 +3,7 @@
 A simple todo app that helps users organize their tasks with ease.  
 This project was developed as a case study for **Privia Security**.
 
-🔗 [Live Site](https://www.emrello.com)
+🔗 [Click Here to Test the Live App](https://www.emrello.com)
 
 ---
 
